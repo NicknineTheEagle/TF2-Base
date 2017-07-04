@@ -178,7 +178,7 @@ void CBaseHudWeaponSelection::ProcessInput()
 	{
 		if ( IsWeaponSelectable() )
 		{
-#ifndef TF_CLIENT_DLL
+#if !( defined( TF_CLIENT_DLL ) || defined ( TF_MOD_CLIENT ) )
 			if ( HUDTYPE_PLUS != hud_fastswitch.GetInt() )
 #endif
 			{

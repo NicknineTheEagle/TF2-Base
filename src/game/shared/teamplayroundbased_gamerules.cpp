@@ -1829,7 +1829,7 @@ void CTeamplayRoundBasedRules::State_Think_TEAM_WIN( void )
 {
 	if ( gpGlobals->curtime > m_flStateTransitionTime )
 	{
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_MOD )
 		IGameEvent *event = gameeventmanager->CreateEvent( "scorestats_accumulated_update" );
 		if ( event )
 		{
@@ -3201,7 +3201,7 @@ void CTeamplayRoundBasedRules::ResetScores( void )
 	m_bResetRoundsPlayed = true;
 	//m_flStopWatchTime = -1.0f;
 
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_MOD )
 	IGameEvent *event = gameeventmanager->CreateEvent( "scorestats_accumulated_reset" );
 	if ( event )
 	{
@@ -3369,7 +3369,7 @@ string_t CTeamplayRoundBasedRules::GetLastPlayedRound( void )
 //-----------------------------------------------------------------------------
 CTeamRoundTimer *CTeamplayRoundBasedRules::GetActiveRoundTimer( void )
 {
-#ifdef TF_DLL
+#if defined( TF_DLL ) || defined ( TF_MOD )
 	int iTimerEntIndex = ObjectiveResource()->GetTimerInHUD();
 	return ( dynamic_cast<CTeamRoundTimer *>( UTIL_EntityByIndex( iTimerEntIndex ) ) );
 #else

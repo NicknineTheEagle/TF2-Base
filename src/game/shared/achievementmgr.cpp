@@ -322,7 +322,7 @@ bool CAchievementMgr::Init()
 	usermessages->HookMessage( "AchievementEvent", MsgFunc_AchievementEvent );
 #endif // CLIENT_DLL
 
-#ifdef TF_CLIENT_DLL
+#if defined (TF_CLIENT_DLL) || defined (TF_MOD_CLIENT)
 	ListenForGameEvent( "localplayer_changeclass" );
 	ListenForGameEvent( "localplayer_changeteam" );
 	ListenForGameEvent( "teamplay_round_start" );	

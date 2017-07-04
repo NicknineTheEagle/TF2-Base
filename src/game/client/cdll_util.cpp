@@ -1206,7 +1206,7 @@ bool UTIL_GetMapLoadCountFileName( const char *pszFilePrependName, char *pszBuff
 	return true;
 }
 
-#ifdef TF_CLIENT_DLL
+#if defined(TF_CLIENT_DLL) || defined(TF_MOD_CLIENT)
 #define MAP_KEY_FILE "viewed.res"
 #else
 #define MAP_KEY_FILE "mapkeys.res"

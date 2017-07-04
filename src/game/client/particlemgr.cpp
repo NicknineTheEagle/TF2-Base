@@ -1083,7 +1083,7 @@ bool CParticleMgr::Init(unsigned long count, IMaterialSystem *pMaterials)
 	// Send true to load the sheets
 	ParseParticleEffects( true, false );
 
-#ifdef TF_CLIENT_DLL
+#if defined( TF_CLIENT_DLL ) || defined ( TF_MOD_CLIENT )
 	if ( IsX360() )
 	{
 		//m_pThreadPool[0] = CreateThreadPool();
