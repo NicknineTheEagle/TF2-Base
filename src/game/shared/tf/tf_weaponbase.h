@@ -218,6 +218,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 	virtual bool	ShouldPredict();
 	virtual void	OnDataChanged( DataUpdateType_t type );
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
+	virtual int		CalcOverrideModelIndex( void );
 	virtual int		GetWorldModelIndex( void );
 	virtual bool	ShouldDrawCrosshair( void );
 	virtual void	Redraw( void );

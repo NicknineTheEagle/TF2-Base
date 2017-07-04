@@ -1457,6 +1457,20 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 //-----------------------------------------------------------------------------
 // Purpose:
 // ----------------------------------------------------------------------------
+int CTFWeaponBase::CalcOverrideModelIndex( void )
+{
+	CTFPlayer *pPlayer = GetTFPlayerOwner();
+	if ( pPlayer && !pPlayer->ShouldDrawThisPlayer() )
+	{
+		return m_iViewModelIndex;
+	}
+
+	return GetWorldModelIndex();
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+// ----------------------------------------------------------------------------
 int CTFWeaponBase::GetWorldModelIndex( void )
 {
 	CTFPlayer *pPlayer = GetTFPlayerOwner();
