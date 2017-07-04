@@ -532,7 +532,11 @@ void CModelPanel::Paint()
 	}
 
 	Vector vecExtraModelOffset( 0, 0, 0 );
+#ifdef TF_MOD_CLIENT
+	float flWidthRatio = engine->GetScreenAspectRatio() / ( 4.0f / 3.0f );
+#else
 	float flWidthRatio = ((float)w / (float)h ) / ( 4.0f / 3.0f );
+#endif
 
 	// is this a player model?
 	if ( Q_strstr( GetModelName(), "models/player/" ) )
