@@ -13,7 +13,7 @@ $Configuration
 {
 	$Compiler
 	{
-		$AdditionalIncludeDirectories	".\hl2;.\tf;.\tf\vgui;$SRCDIR\game\shared\multiplayer;$SRCDIR\game\shared\tf;$BASE"
+		$AdditionalIncludeDirectories	".\hl2;.\tf;.\tf\vgui;$SRCDIR\game\shared\Multiplayer;$SRCDIR\game\shared\tf;$BASE"
 		$PreprocessorDefinitions		"$BASE;TF_MOD_CLIENT"
 	}
 }
