@@ -16,12 +16,12 @@
 #include <vgui/IScheme.h>
 #include <vgui/ILocalize.h>
 #include <vgui/ISurface.h>
-#include <vgui/IVgui.h>
+#include <vgui/IVGui.h>
 #include <vgui_controls/SectionedListPanel.h>
 #include <vgui_controls/ImageList.h>
 #include <game/client/iviewport.h>
 #include <KeyValues.h>
-#include <FileSystem.h>
+#include <filesystem.h>
 #include "IGameUIFuncs.h" // for key bindings
 
 #include "tf_controls.h"

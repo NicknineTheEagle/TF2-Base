@@ -37,7 +37,7 @@ END_NETWORK_TABLE()
 #ifdef GAME_DLL
 
 BEGIN_DATADESC( CTFBaseProjectile )
-	//DEFINE_FUNCTION( ProjectileTouch ),
+	DEFINE_ENTITYFUNC( ProjectileTouch ),
 	DEFINE_THINKFUNC( FlyThink ),
 END_DATADESC()
 

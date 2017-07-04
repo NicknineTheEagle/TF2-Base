@@ -149,8 +149,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void SetWeaponVisible( bool visible );
 
-	virtual acttable_t *ActivityList( void );
-	virtual int ActivityListCount( void );
+	virtual acttable_t *ActivityList( int &iActivityCount );
 	static acttable_t m_acttablePrimary[];
 	static acttable_t m_acttableSecondary[];
 	static acttable_t m_acttableMelee[];
@@ -225,6 +224,7 @@ class CTFWeaponBase : public CBaseCombatWeapon
 
 	virtual void	AddViewmodelBob( CBaseViewModel *viewmodel, Vector &origin, QAngle &angles );
 	virtual	float	CalcViewmodelBob( void );
+	virtual ShadowType_t	ShadowCastType( void );
 	virtual int		GetSkin();
 	BobState_t		*GetBobState();
 

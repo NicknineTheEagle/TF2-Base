@@ -455,7 +455,7 @@ bool CTFGameRules::CanChangelevelBecauseOfTimeLimit( void )
 	// we're playing mini-rounds, and the master says we need to play all of them before changing (for maps like Dustbowl)
 	if ( !m_bForceMapReset && pMaster && pMaster->PlayingMiniRounds() && pMaster->ShouldPlayAllControlPointRounds() )
 	{
-		if ( pMaster->FindControlPointRoundToPlay() )
+		if ( pMaster->NumPlayableControlPointRounds() )
 		{
 			return false;
 		}
@@ -1162,26 +1162,6 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 			return true;
 		}
-		else if ( FStrEq( pcmd, "freezecam_taunt" ) )
-		{	
-			// let's check this came from the client .dll and not the console
-			int iCmdPlayerID = pPlayer->GetUserID();
-			unsigned short mask = UTIL_GetAchievementEventMask();
-
-			int iAchieverIndex = atoi( args[1] ) ^ mask;
-			int code = ( iCmdPlayerID ^ iAchieverIndex ) ^ mask;
-			if ( code == atoi( args[2] ) )
-			{
-				CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
-				if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
-				{
-					int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
-					pAchiever->AwardAchievement( g_TauntCamAchievements[ iClass ] );
-				}
-			}
-
-			return true;
-		}
 		else if( pPlayer->ClientCommand( args ) )
 		{
             return true;
@@ -1318,7 +1298,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 		BaseClass::GoToIntermission();
 	}
 
-	bool CTFGameRules::FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker )
+	bool CTFGameRules::FPlayerCanTakeDamage(CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info)
 	{
 		// guard against NULL pointers if players disconnect
 		if ( !pPlayer || !pAttacker )
@@ -1341,7 +1321,7 @@ void CTFGameRules::RadiusDamage( const CTakeDamageInfo &info, const Vector &vecS
 			}
 		}
 
-		return BaseClass::FPlayerCanTakeDamage( pPlayer, pAttacker );
+		return BaseClass::FPlayerCanTakeDamage(pPlayer, pAttacker, info);
 	}
 
 Vector DropToGround( 
@@ -1656,6 +1636,35 @@ void CTFGameRules::ClientSettingsChanged( CBasePlayer *pPlayer )
 	int iFov = atoi(pszFov);
 	iFov = clamp( iFov, 75, 90 );
 	pTFPlayer->SetDefaultFOV( iFov );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues )
+{
+	BaseClass::ClientCommandKeyValues( pEntity, pKeyValues );
+
+	CTFPlayer *pPlayer = ToTFPlayer( CBaseEntity::Instance( pEntity ) );
+	if ( !pPlayer )
+		return;
+
+	if ( FStrEq( pKeyValues->GetName(), "FreezeCamTaunt" ) )
+	{
+		int iCmdPlayerID = pPlayer->GetUserID();
+		int iAchieverIndex = pKeyValues->GetInt( "achiever" );
+
+		CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
+		if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
+		{
+			int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
+
+			if ( g_TauntCamAchievements[iClass] != 0 )
+			{
+				pAchiever->AwardAchievement( g_TauntCamAchievements[iClass] );
+			}
+		}
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -2828,7 +2837,7 @@ bool CTFGameRules::ShouldCollide( int collisionGroup0, int collisionGroup1 )
 	if ( collisionGroup0 > collisionGroup1 )
 	{
 		// swap so that lowest is always first
-		swap( collisionGroup0, collisionGroup1 );
+		V_swap( collisionGroup0, collisionGroup1 );
 	}
 	
 	//Don't stand on COLLISION_GROUP_WEAPONs

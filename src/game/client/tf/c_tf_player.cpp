@@ -11,7 +11,7 @@
 #include "iclientvehicle.h"
 #include "ivieweffects.h"
 #include "input.h"
-#include "ieffects.h"
+#include "IEffects.h"
 #include "fx.h"
 #include "c_basetempentity.h"
 #include "hud_macros.h"
@@ -27,7 +27,7 @@
 #include "tf_weaponbase.h"
 #include "c_tf_playerresource.h"
 #include "toolframework/itoolframework.h"
-#include "tier1/keyvalues.h"
+#include "tier1/KeyValues.h"
 #include "tier0/vprof.h"
 #include "prediction.h"
 #include "effect_dispatch_data.h"
@@ -37,11 +37,10 @@
 #include "view_scene.h"
 #include "c_baseobject.h"
 #include "toolframework_client.h"
-#include "materialsystem/IMaterialVar.h"
 #include "soundenvelope.h"
 #include "voice_status.h"
-#include "ClientEffectPrecacheSystem.h"
-#include "FunctionProxy.h"
+#include "clienteffectprecachesystem.h"
+#include "functionproxy.h"
 #include "toolframework_client.h"
 #include "choreoevent.h"
 #include "vguicenterprint.h"
@@ -55,9 +54,9 @@
 #include "c_team.h"
 #include "collisionutils.h"
 // for spy material proxy
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
 #include "c_tf_team.h"
 
 #if defined( CTFPlayer )
@@ -66,6 +65,8 @@
 
 #include "materialsystem/imesh.h"		//for materials->FindMaterial
 #include "iviewrender.h"				//for view->
+
+#include "cam_thirdperson.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"
@@ -171,7 +172,7 @@ public:
 
 	IRagdoll* GetIRagdoll() const;
 
-	void ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName );
+	void ImpactTrace( trace_t *pTrace, int iDamageType, const char *pCustomImpactName );
 
 	void ClientThink( void );
 	void StartFadeOut( float fDelay );
@@ -300,7 +301,7 @@ void C_TFRagdoll::SetupWeights( const matrix3x4_t *pBoneToWorld, int nFlexWeight
 //			iDamageType - 
 //			*pCustomImpactName - 
 //-----------------------------------------------------------------------------
-void C_TFRagdoll::ImpactTrace( trace_t *pTrace, int iDamageType, char *pCustomImpactName )
+void C_TFRagdoll::ImpactTrace(trace_t *pTrace, int iDamageType, const char *pCustomImpactName)
 {
 	VPROF( "C_TFRagdoll::ImpactTrace" );
 	IPhysicsObject *pPhysicsObject = VPhysicsGetObject();
@@ -1712,8 +1713,12 @@ void C_TFPlayer::TurnOnTauntCam( void )
 	m_TauntCameraData.m_vecHullMax.Init( 9.0f, 9.0f, 9.0f );
 
 	QAngle vecCameraOffset( tf_tauntcam_pitch.GetFloat(), tf_tauntcam_yaw.GetFloat(), tf_tauntcam_dist.GetFloat() );
+
+	g_ThirdPersonManager.SetDesiredCameraOffset( Vector( tf_tauntcam_dist.GetFloat(), 0.0f, 0.0f ) );
+	g_ThirdPersonManager.SetOverridingThirdPerson( true );
 	::input->CAM_ToThirdPerson();
 	ThirdPersonSwitch( true );
+
 	::input->CAM_SetCameraThirdData( &m_TauntCameraData, vecCameraOffset );
 
 	if ( m_hItem )
@@ -1730,11 +1735,13 @@ void C_TFPlayer::TurnOffTauntCam( void )
 	if ( !IsLocalPlayer() )
 		return;	
 
-	Vector vecOffset;
-	::input->CAM_GetCameraOffset( vecOffset );
+	Vector vecOffset = g_ThirdPersonManager.GetCameraOffsetAngles();
+
 	tf_tauntcam_pitch.SetValue( vecOffset[PITCH] - m_angTauntPredViewAngles[PITCH] );
 	tf_tauntcam_yaw.SetValue( vecOffset[YAW] - m_angTauntPredViewAngles[YAW] );
 
+	g_ThirdPersonManager.SetDesiredCameraOffset( vec3_origin );
+	g_ThirdPersonManager.SetOverridingThirdPerson( false );
 	::input->CAM_ToFirstPerson();
 	ThirdPersonSwitch( false );
 	::input->CAM_SetCameraThirdData( NULL, vec3_angle );
@@ -2548,7 +2555,7 @@ void C_TFPlayer::CalcDeathCamView(Vector& eyeOrigin, QAngle& eyeAngles, float& f
 	interpolation = SimpleSpline( interpolation );
 
 	m_flObserverChaseDistance += gpGlobals->frametime*48.0f;
-	m_flObserverChaseDistance = clamp( m_flObserverChaseDistance, 16, CHASE_CAM_DISTANCE );
+	m_flObserverChaseDistance = clamp(m_flObserverChaseDistance, CHASE_CAM_DISTANCE_MIN, CHASE_CAM_DISTANCE_MAX);
 
 	QAngle aForward = eyeAngles = EyeAngles();
 	Vector origin = EyePosition();			

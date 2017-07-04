@@ -13,7 +13,7 @@
 #include "tf_gamerules.h"
 #include "tf_hud_objectivestatus.h"
 #include "tf_hud_statpanel.h"
-#include "IClientMode.h"
+#include "iclientmode.h"
 #include "c_playerresource.h"
 #include "tf_hud_building_status.h"
 #include "tf_hud_winpanel.h"
@@ -221,7 +221,7 @@ void CTFSpectatorGUI::UpdateKeyLabels( void )
 
 	if ( m_pSwitchCamModeKeyLabel )
 	{
-		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) || ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
+		if ( ( pPlayer && pPlayer->GetTeamNumber() > TEAM_SPECTATOR ) && ( ( mp_forcecamera.GetInt() == OBS_ALLOW_NONE ) || mp_fadetoblack.GetBool() ) )
 		{
 			if ( m_pSwitchCamModeKeyLabel->IsVisible() )
 			{

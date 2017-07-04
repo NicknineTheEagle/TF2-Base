@@ -1948,7 +1948,7 @@ void CTFPlayer::FireBullet( const FireBulletsInfo_t &info, bool bDoEffects, int 
 		// Server specific.
 #ifndef CLIENT_DLL
 		// See what material we hit.
-		CTakeDamageInfo dmgInfo( this, info.m_pAttacker, info.m_iDamage, nDamageType );
+		CTakeDamageInfo dmgInfo( this, info.m_pAttacker, GetActiveWeapon(), info.m_flDamage, nDamageType );
 		dmgInfo.SetDamageCustom( nCustomDamageType );
 		CalculateBulletDamageForce( &dmgInfo, info.m_iAmmoType, info.m_vecDirShooting, trace.endpos, 1.0 );	//MATTTODO bullet forces
 		trace.m_pEnt->DispatchTraceAttack( dmgInfo, info.m_vecDirShooting, &trace );

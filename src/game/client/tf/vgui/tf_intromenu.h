@@ -12,7 +12,7 @@
 #endif
 
 #include "tf_vgui_video.h"
-#include "tf_modelpanel.h"
+#include "basemodelpanel.h"
 
 #define MAX_CAPTION_LENGTH	256
 

@@ -66,7 +66,7 @@ public:
 	virtual	void	SetupAttachedVersion( void ) { return; }
 
 	virtual const char	*GetTargetDescription( void ) const;
-	virtual char	*GetIDString( void );
+	virtual const char	*GetIDString( void );
 	virtual bool	IsValidIDTarget( void );
 
 	virtual void	GetTargetIDString( wchar_t *sIDString, int iMaxLenInBytes );

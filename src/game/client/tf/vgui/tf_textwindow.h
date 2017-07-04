@@ -12,7 +12,7 @@
 #endif
 
 #include <vgui_controls/Panel.h>
-#include "VguiTextWindow.h"
+#include "vguitextwindow.h"
 #include "tf_controls.h"
 #include "IconPanel.h"
 

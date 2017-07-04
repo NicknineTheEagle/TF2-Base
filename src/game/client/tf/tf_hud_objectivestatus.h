@@ -15,7 +15,8 @@
 #include "tf_imagepanel.h"
 #include "tf_hud_flagstatus.h"
 #include "hud_controlpointicons.h"
-#include "gameeventlistener.h"
+#include "GameEventListener.h"
+#include "c_tf_player.h"
 
 //-----------------------------------------------------------------------------
 // Purpose: 

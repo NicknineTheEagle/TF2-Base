@@ -14,7 +14,7 @@
 #include "entity_capture_flag.h"
 #include "tf_controls.h"
 #include "tf_imagepanel.h"
-#include "gameeventlistener.h"
+#include "GameEventListener.h"
 
 //-----------------------------------------------------------------------------
 // Purpose:  Draws the rotated arrow panels

@@ -14,13 +14,13 @@
 #include <vgui_controls/Frame.h>
 #include <vgui/IScheme.h>
 #include <game/client/iviewport.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include <KeyValues.h>
-#include <FileSystem.h>
+#include <filesystem.h>
 
 #include "vguicenterprint.h"
 #include "tf_controls.h"
-#include "tf_modelpanel.h"
+#include "basemodelpanel.h"
 #include "tf_teammenu.h"
 #include <convar.h>
 #include "IGameUIFuncs.h" // for key bindings

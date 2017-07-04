@@ -1026,7 +1026,7 @@ bool CObjectSentrygun::Fire()
 		info.m_vecSpread = vec3_origin;
 		info.m_flDistance = flDistToTarget + 100;
 		info.m_iAmmoType = m_iAmmoType;
-		info.m_iDamage = tf_sentrygun_damage.GetInt();
+		info.m_flDamage = tf_sentrygun_damage.GetFloat();
 
 		FireBullets( info );
 

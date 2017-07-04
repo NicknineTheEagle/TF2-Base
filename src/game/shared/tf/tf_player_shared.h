@@ -48,11 +48,6 @@ class CTFPlayer;
 class CTFDamageEvent
 {
 	DECLARE_EMBEDDED_NETWORKVAR()
-#ifdef CLIENT_DLL
-	DECLARE_CLIENTCLASS_NOBASE();
-#else
-	DECLARE_SERVERCLASS_NOBASE();
-#endif
 
 public:
 	float flDamage;
@@ -321,6 +316,11 @@ private:
 #define TF_DEATH_ASSISTER_DOMINATION	0x0002	// assister is dominating victim
 #define TF_DEATH_REVENGE				0x0004	// killer got revenge on victim
 #define TF_DEATH_ASSISTER_REVENGE		0x0008	// assister got revenge on victim
+#define TF_DEATH_FIRST_BLOOD			0x0010
+#define TF_DEATH_FEIGN_DEATH			0x0020
+#define TF_DEATH_GIB					0x0080
+#define TF_DEATH_PURGATORY				0x0100
+#define TF_DEATH_AUSTRALIUM				0x0400
 
 extern const char *g_pszBDayGibs[22];
 

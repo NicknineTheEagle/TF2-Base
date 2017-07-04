@@ -2150,7 +2150,7 @@ void CTFPlayer::StartBuildingObjectOfType( int iType )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr )
+void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, trace_t *ptr, CDmgAccumulator *pAccumulator )
 {
 	if ( m_takedamage != DAMAGE_YES )
 		return;
@@ -2161,7 +2161,7 @@ void CTFPlayer::TraceAttack( const CTakeDamageInfo &info, const Vector &vecDir, 
 		// Prevent team damage here so blood doesn't appear
 		if ( info.GetAttacker()->IsPlayer() )
 		{
-			if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker() ) )
+			if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker(), info ) )
 				return;
 		}
 	}
@@ -2427,7 +2427,7 @@ int CTFPlayer::OnTakeDamage( const CTakeDamageInfo &inputInfo )
 	}
 
 	// Make sure the player can take damage from the attacking entity
-	if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker() ) )
+	if ( !g_pGameRules->FPlayerCanTakeDamage( this, info.GetAttacker(), info ) )
 	{
 		if ( bDebug )
 		{
@@ -3840,6 +3840,12 @@ bool CTFPlayer::SetObserverMode(int mode)
 	if ( mode < OBS_MODE_NONE || mode >= NUM_OBSERVER_MODES )
 		return false;
 
+	// Skip OBS_MODE_POI as we're not using that.
+	if ( mode == OBS_MODE_POI )
+	{
+		mode++;
+	}
+
 	// Skip over OBS_MODE_ROAMING for dead players
 	if( GetTeamNumber() > TEAM_SPECTATOR )
 	{
@@ -3847,7 +3853,7 @@ bool CTFPlayer::SetObserverMode(int mode)
 		{
 			mode = OBS_MODE_CHASE;
 		}
-		else if ( mode == OBS_MODE_ROAMING || ( mode > OBS_MODE_FIXED && mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
+		else if ( mode == OBS_MODE_ROAMING )
 		{
 			mode = OBS_MODE_IN_EYE;
 		}
@@ -4885,10 +4891,7 @@ public:
 		if ( m_bDisabled )
 			return false;
 
-		if ( ( pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM ) && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
-			return false;
-
-		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM_ALL ) )
+		if ( m_hAssociatedTeamEntity && ( mp_forcecamera.GetInt() == OBS_ALLOW_TEAM ) )
 		{
 			// If we don't own the associated team entity, we can't use this point
 			if ( m_hAssociatedTeamEntity->GetTeamNumber() != pPlayer->GetTeamNumber() && pPlayer->GetTeamNumber() >= FIRST_GAME_TEAM )
@@ -5079,8 +5082,7 @@ bool CTFPlayer::IsValidObserverTarget(CBaseEntity * target)
 		switch ( mp_forcecamera.GetInt() )	
 		{
 		case OBS_ALLOW_ALL		:	break;
-		case OBS_ALLOW_TEAM     :
-		case OBS_ALLOW_TEAM_ALL :	if ( target->GetTeamNumber() != TEAM_UNASSIGNED && GetTeamNumber() != target->GetTeamNumber() )
+		case OBS_ALLOW_TEAM		:	if (target->GetTeamNumber() != TEAM_UNASSIGNED && GetTeamNumber() != target->GetTeamNumber())
 										return false;
 									break;
 		case OBS_ALLOW_NONE		:	return false;
@@ -5205,7 +5207,7 @@ CBaseEntity *CTFPlayer::FindNearestObservableTarget( Vector vecOrigin, float flM
 	{
 		// let's spectate our sentry instead, we didn't find any other engineers to spec
 		int iNumObjects = GetObjectCount();
-		for ( i=0;i<iNumObjects;i++ )
+		for ( int i = 0; i < iNumObjects; i++ )
 		{
 			CBaseObject *pObj = GetObject(i);
 
@@ -5885,14 +5887,30 @@ int CTFPlayer::DrawDebugTextOverlays(void)
 //-----------------------------------------------------------------------------
 bool CTFPlayer::GetResponseSceneFromConcept( int iConcept, char *chSceneBuffer, int numSceneBufferBytes )
 {
-	AI_Response * const result = SpeakConcept( iConcept );
-	if ( result )
+	AI_Response response;
+	bool bResult = SpeakConcept( response, iConcept );
+
+	if ( bResult )
 	{
-		result->GetResponse( chSceneBuffer, numSceneBufferBytes );
-		delete result;
+		if ( response.IsApplyContextToWorld() )
+		{
+			CBaseEntity *pEntity = CBaseEntity::Instance( engine->PEntityOfEntIndex( 0 ) );
+			if ( pEntity )
+			{
+				pEntity->AddContext( response.GetContext() );
+			}
+		}
+		else
+		{
+			AddContext( response.GetContext() );
+		}
+
+		V_strncpy( chSceneBuffer, response.GetResponsePtr(), numSceneBufferBytes );
 	}
-	return result != NULL;
+
+	return bResult;
 }
+
 
 //-----------------------------------------------------------------------------
 // Purpose:calculate a score for this player. higher is more likely to be switched

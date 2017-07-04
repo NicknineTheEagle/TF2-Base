@@ -8,6 +8,7 @@
 #include "usermessages.h"
 #include "shake.h"
 #include "voice_gamemgr.h"
+#include "haptics/haptic_msgs.h"
 
 void RegisterUserMessages()
 {
@@ -48,5 +49,7 @@ void RegisterUserMessages()
 	usermessages->Register( "HudNotifyCustom", -1 );
 
 	usermessages->Register( "PlayerStatsUpdate", -1 );
+
+	RegisterHapticMessages();
 }
 

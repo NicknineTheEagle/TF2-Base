@@ -6,7 +6,7 @@
 //=============================================================================//
 
 #include "cbase.h"
-#include <vgui/isurface.h>
+#include <vgui/ISurface.h>
 #include <vgui/ILocalize.h>
 #include "tf_shareddefs.h"
 #include "tf_overview.h"

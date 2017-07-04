@@ -14,7 +14,7 @@
 #include <vgui_controls/ImagePanel.h>
 #include "tf_controls.h"
 #include "tf_imagepanel.h"
-#include "gameeventlistener.h"
+#include "GameEventListener.h"
 
 //-----------------------------------------------------------------------------
 // Purpose:  

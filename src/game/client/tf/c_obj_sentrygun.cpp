@@ -6,7 +6,7 @@
 //=============================================================================//
 #include "cbase.h"
 #include "c_tf_player.h"
-#include "VGUI_BitmapButton.h"
+#include "vgui_bitmapbutton.h"
 #include "vgui/ILocalize.h"
 #include "tf_fx_muzzleflash.h"
 #include "eventlist.h"
@@ -422,7 +422,7 @@ void C_ObjectSentrygun::UpdateDamageEffects( BuildingDamageLevel_t damageLevel )
 {
 	if ( m_pDamageEffects )
 	{
-		m_pDamageEffects->StopEmission( false, false );
+		ParticleProp()->StopEmission( m_pDamageEffects );
 		m_pDamageEffects = NULL;
 	}
 

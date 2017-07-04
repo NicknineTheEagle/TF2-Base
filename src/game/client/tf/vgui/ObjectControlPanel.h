@@ -12,7 +12,7 @@
 #pragma once
 #endif
 
-#include "C_VGuiScreen.h"
+#include "c_vguiscreen.h"
 
 namespace vgui
 {

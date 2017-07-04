@@ -14,10 +14,10 @@
 #include "beamdraw.h"
 #include "vgui/ISurface.h"
 #include <vgui/ILocalize.h>
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 #include "hud_crosshair.h"
-#include "FunctionProxy.h"
-#include "materialsystem/IMaterialVar.h"
+#include "functionproxy.h"
+#include "materialsystem/imaterialvar.h"
 #include "toolframework_client.h"
 #include "input.h"
 
@@ -142,7 +142,7 @@ bool CTFSniperRifle::Reload( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-bool CTFSniperRifle::CanHolster( void )
+bool CTFSniperRifle::CanHolster( void ) const
 {
  	CTFPlayer *pPlayer = GetTFPlayerOwner();
  	if ( pPlayer )

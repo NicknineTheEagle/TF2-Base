@@ -8,7 +8,7 @@
 #include "vgui_int.h"
 #include "ienginevgui.h"
 #include "vgui_rootpanel_tf.h"
-#include "vgui/ivgui.h"
+#include "vgui/IVGui.h"
 
 // memdbgon must be the last include file in a .cpp file!!!
 #include "tier0/memdbgon.h"

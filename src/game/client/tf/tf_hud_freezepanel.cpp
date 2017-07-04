@@ -528,12 +528,10 @@ void CTFFreezePanel::UpdateCallout( void )
 			if ( pKiller && pKiller->m_Shared.InCond( TF_COND_TAUNTING ) )
 			{
 				// tell the server our ragdoll just got taunted during our freezecam
-				char cmd[256];
-				int iPlayerID = pPlayer->GetUserID();
-				unsigned short mask = UTIL_GetAchievementEventMask();
+				KeyValues *pKeys = new KeyValues( "FreezeCamTaunt" );
+				pKeys->SetInt( "achiever", GetSpectatorTarget() );
 
-				Q_snprintf( cmd, sizeof( cmd ), "freezecam_taunt %d %d", GetSpectatorTarget() ^ mask, ( iPlayerID ^ GetSpectatorTarget() ) ^ mask );
-				engine->ClientCmd_Unrestricted( cmd );
+				engine->ServerCmdKeyValues( pKeys );
 			}
 		}
 	}

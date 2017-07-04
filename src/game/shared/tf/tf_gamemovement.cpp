@@ -64,7 +64,7 @@ public:
 	virtual void CategorizePosition( void );
 	virtual void CheckFalling( void );
 	virtual void Duck( void );
-	virtual const Vector& GetPlayerViewOffset( bool ducked ) const;
+	virtual Vector GetPlayerViewOffset( bool ducked ) const;
 
 	virtual void	TracePlayerBBox( const Vector& start, const Vector& end, unsigned int fMask, int collisionGroup, trace_t& pm );
 	virtual CBaseHandle	TestPlayerPosition( const Vector& pos, int collisionGroup, trace_t& pm );
@@ -153,7 +153,7 @@ void CTFGameMovement::PlayerMove()
 	}
 }
 
-const Vector& CTFGameMovement::GetPlayerViewOffset( bool ducked ) const
+Vector CTFGameMovement::GetPlayerViewOffset( bool ducked ) const
 {
 	return ducked ? VEC_DUCK_VIEW : ( m_pTFPlayer->GetClassEyeHeight() );
 }
@@ -199,7 +199,7 @@ void CTFGameMovement::ProcessMovement( CBasePlayer *pBasePlayer, CMoveData *pMov
 	// Cropping movement speed scales mv->m_fForwardSpeed etc. globally
 	// Once we crop, we don't want to recursively crop again, so we set the crop
 	// flag globally here once per usercmd cycle.
-	m_bSpeedCropped = false;
+	m_iSpeedCropped = SPEED_CROPPED_RESET;
 
 	// Get the current TF player.
 	m_pTFPlayer = ToTFPlayer( pBasePlayer );

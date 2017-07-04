@@ -175,7 +175,7 @@ public:
 
 #else // CLIENT DLL Functions
 
-	virtual char	*GetIDString( void ) { return "entity_capture_flag"; };
+	virtual const char	*GetIDString( void ) { return "entity_capture_flag"; };
 
 	virtual void	OnPreDataChanged( DataUpdateType_t updateType );
 	virtual void	OnDataChanged( DataUpdateType_t updateType );

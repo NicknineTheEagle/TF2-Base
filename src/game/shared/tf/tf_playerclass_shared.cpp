@@ -8,6 +8,10 @@
 #include "materialsystem/imaterialsystemhardwareconfig.h"
 #include "tier2/tier2.h"
 
+#ifdef CLIENT_DLL
+bool UseHWMorphModels();
+#endif
+
 
 #define TF_CLASS_UNDEFINED_FILE			""
 #define TF_CLASS_SCOUT_FILE				"scripts/playerclasses/scout"
@@ -37,22 +41,6 @@ const char *s_aPlayerClassFiles[] =
 };
 
 TFPlayerClassData_t s_aTFPlayerClassData[TF_CLASS_COUNT_ALL];
-
-#ifdef CLIENT_DLL
-ConVar mp_usehwmmodels( "mp_usehwmmodels", "0", NULL, "Enable the use of the hw morph models. (-1 = never, 1 = always, 0 = based upon GPU)" ); // -1 = never, 0 = if hasfastvertextextures, 1 = always
-#endif
-
-bool UseHWMorphModels()
-{
-#ifdef CLIENT_DLL 
-	if ( mp_usehwmmodels.GetInt() == 0 )
-		return g_pMaterialSystemHardwareConfig->HasFastVertexTextures();
-
-	return mp_usehwmmodels.GetInt() > 0;
-#else
-	return false;
-#endif
-}
 
 //-----------------------------------------------------------------------------
 // Purpose: Constructor

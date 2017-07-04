@@ -80,12 +80,17 @@ struct PlayerRoundScore_t
 
 #define MAX_TEAMGOAL_STRING		256
 
-class CTFGameRules : public CTeamplayRoundBasedRules, public CGameEventListener
+class CTFGameRules : public CTeamplayRoundBasedRules
 {
 public:
 	DECLARE_CLASS( CTFGameRules, CTeamplayRoundBasedRules );
 
 	CTFGameRules();
+
+	enum
+	{
+		HALLOWEEN_SCENARIO_DOOMSDAY = 5,
+	};
 
 	// Damage Queries.
 	virtual bool	Damage_IsTimeBased( int iDmgType );			// Damage types that are time-based.
@@ -104,6 +109,9 @@ public:
 	static int		CalcPlayerScore( RoundStats_t *pRoundStats );
 
 	bool			IsBirthday( void );
+
+	bool			IsMannVsMachineMode( void ) { return false; }
+	bool			IsHalloweenScenario( int iScenario ) { return false; }
 
 	virtual const unsigned char *GetEncryptionKey( void ) { return (unsigned char *)"E2NcUkG2"; }
 
@@ -201,6 +209,9 @@ public:
 
 	const char *GetTeamGoalString( int iTeam );
 
+	virtual bool	IsMultiplayer( void ) { return true; };
+	virtual bool	IsConnectedUserInfoChangeAllowed( CBasePlayer *pPlayer ) { return true; }
+
 #ifdef CLIENT_DLL
 
 	DECLARE_CLIENTCLASS_NOBASE(); // This makes data tables able to access our private vars.
@@ -224,9 +235,8 @@ public:
 	bool CheckTimeLimit();
 	bool CheckWinLimit();
 	bool CheckCapsPerRound();
-	void CheckRespawnWaves();
 
-	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker );
+	virtual bool FPlayerCanTakeDamage( CBasePlayer *pPlayer, CBaseEntity *pAttacker, const CTakeDamageInfo &info );
 
 	// Spawing rules.
 	CBaseEntity *GetPlayerSpawnSpot( CBasePlayer *pPlayer );
@@ -238,6 +248,7 @@ public:
 
 	virtual const char *GetChatFormat( bool bTeamOnly, CBasePlayer *pPlayer );
 	void ClientSettingsChanged( CBasePlayer *pPlayer );
+	void ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValues );
 	void ChangePlayerName( CTFPlayer *pPlayer, const char *pszNewName );
 
 	virtual VoiceCommandMenuItem_t *VoiceCommand( CBaseMultiplayerPlayer *pPlayer, int iMenu, int iItem ); 

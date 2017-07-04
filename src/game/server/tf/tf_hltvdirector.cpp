@@ -35,7 +35,7 @@ public:
 
 	const char** GetModEvents();
 	void SetHLTVServer( IHLTVServer *hltv );
-	void CreateShotFromEvent( CGameEvent *event );
+	void CreateShotFromEvent( CHLTVGameEvent *event);
 
 	virtual char	*GetFixedCameraEntityName( void ) { return "info_observer_point"; }
 };
@@ -55,7 +55,7 @@ void CTFHLTVDirector::SetHLTVServer( IHLTVServer *hltv )
 	}
 }
 
-void CTFHLTVDirector::CreateShotFromEvent( CGameEvent *event )
+void CTFHLTVDirector::CreateShotFromEvent( CHLTVGameEvent *event ) 
 {
 	// show event at least for 2 more seconds after it occured
 	const char *name = event->m_Event->GetName();

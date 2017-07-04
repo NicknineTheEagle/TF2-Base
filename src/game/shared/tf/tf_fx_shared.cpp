@@ -192,11 +192,11 @@ void FX_FireBullets( int iPlayer, const Vector &vecOrigin, const QAngle &vecAngl
 	fireInfo.m_vecSrc = vecOrigin;
 	if ( flDamage < 0.0f )
 	{
-		fireInfo.m_iDamage = pWeaponInfo->GetWeaponData( iMode ).m_nDamage;
+		fireInfo.m_flDamage = pWeaponInfo->GetWeaponData( iMode ).m_nDamage;
 	}
 	else
 	{
-		fireInfo.m_iDamage = static_cast<int>( flDamage );
+		fireInfo.m_flDamage = static_cast<int>(flDamage);
 	}
 	fireInfo.m_flDistance = pWeaponInfo->GetWeaponData( iMode ).m_flRange;
 	fireInfo.m_iShots = 1;

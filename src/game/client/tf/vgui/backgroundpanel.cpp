@@ -13,7 +13,7 @@
 #include <vgui/ISurface.h>
 #include <vgui_controls/Label.h>
 #include <vgui/ILocalize.h>
-#include "vgui_controls/buildgroup.h"
+#include "vgui_controls/BuildGroup.h"
 #include "vgui_controls/BitmapImagePanel.h"
 
 using namespace vgui;

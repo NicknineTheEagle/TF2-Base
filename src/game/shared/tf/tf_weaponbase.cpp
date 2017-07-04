@@ -17,7 +17,7 @@
 // Client specific.
 #else
 #include "vgui/ISurface.h"
-#include "vgui_controls/controls.h"
+#include "vgui_controls/Controls.h"
 #include "c_tf_player.h"
 #include "tf_viewmodel.h"
 #include "hud_crosshair.h"
@@ -30,9 +30,9 @@
 #include "toolframework_client.h"
 
 // for spy material proxy
-#include "ProxyEntity.h"
-#include "materialsystem/IMaterial.h"
-#include "materialsystem/IMaterialVar.h"
+#include "proxyentity.h"
+#include "materialsystem/imaterial.h"
+#include "materialsystem/imaterialvar.h"
 
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif
@@ -1715,7 +1715,7 @@ acttable_t CTFWeaponBase::m_acttablePDA[] =
 
 ConVar mp_forceactivityset( "mp_forceactivityset", "-1", FCVAR_CHEAT|FCVAR_REPLICATED|FCVAR_DEVELOPMENTONLY );
 
-acttable_t *CTFWeaponBase::ActivityList( void )
+acttable_t *CTFWeaponBase::ActivityList( int &iActivityCount )
 {
 	int iWeaponRole = GetTFWpnData().m_iWeaponType;
 
@@ -1745,56 +1745,27 @@ acttable_t *CTFWeaponBase::ActivityList( void )
 	case TF_WPN_TYPE_PRIMARY:
 	default:
 		pTable = m_acttablePrimary;
+		iActivityCount = ARRAYSIZE(m_acttablePrimary);
 		break;
 	case TF_WPN_TYPE_SECONDARY:
 		pTable = m_acttableSecondary;
+		iActivityCount = ARRAYSIZE(m_acttableSecondary);
 		break;
 	case TF_WPN_TYPE_MELEE:
 		pTable = m_acttableMelee;
+		iActivityCount = ARRAYSIZE(m_acttableMelee);
 		break;
 	case TF_WPN_TYPE_BUILDING:
 		pTable = m_acttableBuilding;
+		iActivityCount = ARRAYSIZE(m_acttableBuilding);
 		break;
 	case TF_WPN_TYPE_PDA:
 		pTable = m_acttablePDA;
+		iActivityCount = ARRAYSIZE(m_acttablePDA);
 		break;
 	}
 
 	return pTable;
-}
-
-int CTFWeaponBase::ActivityListCount( void )
-{
-	int iWeaponRole = 0;
-
-	if ( mp_forceactivityset.GetInt() >= 0 )
-	{
-		iWeaponRole = mp_forceactivityset.GetInt();
-	}
-
-	int iSize = 0;
-
-	switch( iWeaponRole )
-	{
-	case TF_WPN_TYPE_PRIMARY:
-	default:
-		iSize = ARRAYSIZE(m_acttablePrimary);
-		break;
-	case TF_WPN_TYPE_SECONDARY:
-		iSize = ARRAYSIZE(m_acttableSecondary);
-		break;
-	case TF_WPN_TYPE_MELEE:
-		iSize = ARRAYSIZE(m_acttableMelee);
-		break;
-	case TF_WPN_TYPE_BUILDING:
-		iSize = ARRAYSIZE(m_acttableBuilding);
-		break;
-	case TF_WPN_TYPE_PDA:
-		iSize = ARRAYSIZE(m_acttablePDA);
-		break;
-	}
-
-	return iSize;
 }
 
 
@@ -2101,6 +2072,17 @@ bool CTFWeaponBase::OnFireEvent( C_BaseViewModel *pViewModel, const Vector& orig
 	}
 
 	return BaseClass::OnFireEvent( pViewModel, origin, angles, event, options );
+}
+
+ShadowType_t CTFWeaponBase::ShadowCastType( void )
+{
+	if ( IsEffectActive( EF_NODRAW | EF_NOSHADOW ) )
+		return SHADOWS_NONE;
+
+	if ( m_iState == WEAPON_IS_CARRIED_BY_PLAYER )
+		return SHADOWS_NONE;
+
+	return BaseClass::ShadowCastType();
 }
 
 //-----------------------------------------------------------------------------

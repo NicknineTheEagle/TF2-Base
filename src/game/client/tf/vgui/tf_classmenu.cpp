@@ -9,9 +9,9 @@
 #include "tf_classmenu.h"
 
 #include <KeyValues.h>
-#include <FileSystem.h>
+#include <filesystem.h>
 #include <vgui_controls/Button.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 
 #include "hud.h" // for gEngfuncs
 #include "c_tf_player.h"
@@ -21,7 +21,7 @@
 #include "tf_controls.h"
 #include "vguicenterprint.h"
 #include "imagemouseoverbutton.h"
-#include "iconpanel.h"
+#include "IconPanel.h"
 
 #include "IGameUIFuncs.h" // for key bindings
 

@@ -11,13 +11,13 @@
 #include "c_tf_team.h"
 #include "engine/IEngineSound.h"
 #include "particles_simple.h"
-#include "FunctionProxy.h"
-#include "ieffects.h"
+#include "functionproxy.h"
+#include "IEffects.h"
 #include "model_types.h"
 #include "particlemgr.h"
 #include "particle_collision.h"
 #include "c_tf_weapon_builder.h"
-#include "IVRenderView.h"
+#include "ivrenderview.h"
 #include "ObjectControlPanel.h"
 #include "engine/ivmodelinfo.h"
 #include "c_te_effect_dispatch.h"
@@ -643,7 +643,7 @@ const char *C_BaseObject::GetTargetDescription( void ) const
 //-----------------------------------------------------------------------------
 // Purpose: Get a text description for the object target (more verbose)
 //-----------------------------------------------------------------------------
-char *C_BaseObject::GetIDString( void )
+const char *C_BaseObject::GetIDString(void)
 {
 	m_szIDString[0] = 0;
 	RecalculateIDString();

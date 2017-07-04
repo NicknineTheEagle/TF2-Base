@@ -12,7 +12,7 @@
 #endif
 
 #include "tf_hud_statpanel.h"
-#include "gameeventlistener.h"
+#include "GameEventListener.h"
 
 class CTFStatsSummaryPanel : public vgui::EditablePanel, public CGameEventListener
 {

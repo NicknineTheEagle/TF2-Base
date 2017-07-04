@@ -106,7 +106,7 @@ void CTFStatsSummaryPanel::ShowModal()
 	m_bInteractive = true;
 #endif
 
-	SetParent( enginevgui->GetPanel( PANEL_GAMEDLL ) );
+	SetParent( enginevgui->GetPanel( PANEL_GAMEUIDLL ) );
 	UpdateDialog();
 	SetVisible( true );
 	MoveToFront();
@@ -581,7 +581,8 @@ void CTFStatsSummaryPanel::SetValueAsClass( const char *pDialogVariable, int iVa
 		wchar_t *wzLocalizedClassName = g_pVGuiLocalize->Find( g_aPlayerClassNames[iPlayerClass] );
 		wchar_t wzVal[16];
 		wchar_t wzMsg[128];
-		_itow_s( iValue, wzVal, ARRAYSIZE( wzVal ), 10 );
+
+		V_snwprintf( wzVal, sizeof( wzVal ) / sizeof( wchar_t ), L"%d", iValue );
 		g_pVGuiLocalize->ConstructString( wzMsg, sizeof( wzMsg ), wzScoreAsClassFmt, 2, wzVal, wzLocalizedClassName );
 		m_pPlayerData->SetDialogVariable( pDialogVariable, wzMsg );
 	}

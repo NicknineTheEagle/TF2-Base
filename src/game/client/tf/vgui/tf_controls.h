@@ -14,7 +14,7 @@
 #include <vgui/IScheme.h>
 #include <vgui/KeyCode.h>
 #include <KeyValues.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include <vgui_controls/ScrollBar.h>
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Button.h>
@@ -60,6 +60,8 @@ public:
 private:
 	char		m_szColor[64];
 };
+
+typedef CTFLabel CExLabel;
 
 //-----------------------------------------------------------------------------
 // Purpose: 

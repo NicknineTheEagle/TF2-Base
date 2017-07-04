@@ -14,7 +14,7 @@
 #include "c_tf_weapon_builder.h"
 #include "c_weapon__stubs.h"
 #include "iinput.h"
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include "c_tf_player.h"
 #include "c_vguiscreen.h"
 #include "ienginevgui.h"

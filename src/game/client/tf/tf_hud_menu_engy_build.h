@@ -13,7 +13,7 @@
 
 #include <vgui_controls/EditablePanel.h>
 #include <vgui_controls/Label.h>
-#include "iconpanel.h"
+#include "IconPanel.h"
 #include "tf_controls.h"
 
 using namespace vgui;

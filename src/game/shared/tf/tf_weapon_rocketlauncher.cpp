@@ -13,7 +13,7 @@
 #ifdef CLIENT_DLL
 #include "c_tf_player.h"
 #include <vgui_controls/Panel.h>
-#include <vgui/isurface.h>
+#include <vgui/ISurface.h>
 // Server specific.
 #else
 #include "tf_player.h"

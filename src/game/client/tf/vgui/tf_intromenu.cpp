@@ -8,9 +8,9 @@
 #include "cbase.h"
 
 #include <KeyValues.h>
-#include <vgui/IVGUI.h>
+#include <vgui/IVGui.h>
 #include <vgui/ISurface.h>
-#include <FileSystem.h>
+#include <filesystem.h>
 #include <vgui_controls/AnimationController.h>
 #include "iclientmode.h"
 #include "clientmode_shared.h"
@@ -18,7 +18,9 @@
 #include "tf_shareddefs.h"
 #include "tf_controls.h"
 #include "tf_gamerules.h"
+#ifdef _WIN32
 #include "winerror.h"
+#endif
 #include "ixboxsystem.h"
 #include "intromenu.h"
 #include "tf_intromenu.h"
@@ -33,8 +35,6 @@ enum
 };
 
 using namespace vgui;
-
-char* ReadAndAllocStringValue( KeyValues *pSub, const char *pName, const char *pFilename = NULL );
 
 // sort function for the list of captions that we're going to show
 int CaptionsSort( CVideoCaption* const *p1, CVideoCaption* const *p2 )

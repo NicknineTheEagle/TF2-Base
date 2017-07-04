@@ -287,8 +287,8 @@ void CTFWinPanel::FireGameEvent( IGameEvent * event )
 			{
 				if ( bShow )
 				{
-					CBasePlayer *pPlayer = UTIL_PlayerByIndex( iPlayerIndex );
-					pPlayerAvatar->SetPlayer( pPlayer );
+					pPlayerAvatar->SetShouldDrawFriendIcon( false );
+					pPlayerAvatar->SetPlayer( iPlayerIndex );
 				}
 
 				pPlayerAvatar->SetVisible( bShow );
