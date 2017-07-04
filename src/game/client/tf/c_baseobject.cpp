@@ -859,6 +859,9 @@ void C_BaseObject::StopAnimGeneratedSounds( void )
 
 	mstudioseqdesc_t &seqdesc = pStudioHdr->pSeqdesc( GetSequence() );
 
+	if ( seqdesc.numevents == 0 )
+		return;
+
 	float flCurrentCycle = GetCycle();
 
 	mstudioevent_t *pevent = GetEventIndexForSequence( seqdesc );
