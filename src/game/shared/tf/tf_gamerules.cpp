@@ -2405,6 +2405,8 @@ void CTFGameRules::RoundRespawn( void )
 		pTeam->SetFlagCaptures( 0 );
 	}
 
+	CTF_GameStats.ResetRoundStats();
+
 	BaseClass::RoundRespawn();
 
 	// ** AFTER WE'VE BEEN THROUGH THE ROUND RESPAWN, SHOW THE ROUNDINFO PANEL
