@@ -207,6 +207,7 @@ void CTFGameStats::ResetRoundStats()
 void CTFGameStats::IncrementStat( CTFPlayer *pPlayer, TFStatType_t statType, int iValue )
 {
 	PlayerStats_t &stats = m_aPlayerStats[pPlayer->entindex()];
+	stats.statsCurrentLife.m_iStat[statType] += iValue;
 	stats.statsCurrentRound.m_iStat[statType] += iValue;
 	stats.statsAccumulated.m_iStat[statType] += iValue;	
 
@@ -229,6 +230,9 @@ void CTFGameStats::SendStatsToPlayer( CTFPlayer *pPlayer, int iMsgType )
 	{
 	case STATMSG_PLAYERDEATH:
 	case STATMSG_PLAYERRESPAWN:
+		// Calc player score from this life.
+		AccumulateAndResetPerLifeStats( pPlayer );
+		iSendBits = stats.iStatsChangedBits;
 		break;
 	case STATMSG_RESET:
 		// this is a reset message, no need to send any stat values with it
@@ -262,7 +266,7 @@ void CTFGameStats::SendStatsToPlayer( CTFPlayer *pPlayer, int iMsgType )
 	{
 		if ( iSendBits & 1 )
 		{
-			WRITE_LONG( stats.statsCurrentRound.m_iStat[iStat] );
+			WRITE_LONG( stats.statsAccumulated.m_iStat[iStat] );
 		}
 		iSendBits >>= 1;
 		iStat ++;
@@ -299,6 +303,11 @@ void CTFGameStats::AccumulateAndResetPerLifeStats( CTFPlayer *pPlayer )
 	stats.statsCurrentRound.m_iStat[TFSTAT_POINTSSCORED] += iScore;
 	stats.statsAccumulated.m_iStat[TFSTAT_POINTSSCORED] += iScore;
 	stats.statsCurrentLife.Reset();	
+
+	if ( iScore != 0 )
+	{
+		stats.iStatsChangedBits |= 1 << ( TFSTAT_POINTSSCORED - TFSTAT_FIRST );
+	}
 }
 
 //-----------------------------------------------------------------------------
@@ -390,8 +399,6 @@ void CTFGameStats::Event_PlayerForceRespawn( CTFPlayer *pPlayer )
 			m_reportedStats.m_pCurrentGame->m_aClassStats[iClass].iTotalTime += (int) ( gpGlobals->curtime - pPlayer->GetSpawnTime() );
 		}
 	}
-
-	AccumulateAndResetPerLifeStats( pPlayer );
 }
 
 //-----------------------------------------------------------------------------
@@ -823,7 +830,6 @@ void CTFGameStats::Event_PlayerKilled( CBasePlayer *pPlayer, const CTakeDamageIn
 
 	IncrementStat( pTFPlayer, TFSTAT_DEATHS, 1 );
 	SendStatsToPlayer( pTFPlayer, STATMSG_PLAYERDEATH );
-	AccumulateAndResetPerLifeStats( pTFPlayer );
 
 	TF_Gamestats_LevelStats_t::PlayerDeathsLump_t death;
 	Vector killerOrg;
@@ -879,6 +885,23 @@ void CTFGameStats::Event_PlayerKilled( CBasePlayer *pPlayer, const CTakeDamageIn
 		{
 			m_reportedStats.m_pCurrentGame->m_aClassStats[iClass].iDeaths++;
 			m_reportedStats.m_pCurrentGame->m_aClassStats[iClass].iTotalTime += (int) ( gpGlobals->curtime - pTFPlayer->GetSpawnTime() );
+		}
+	}
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: 
+//-----------------------------------------------------------------------------
+void CTFGameStats::Event_GameEnd( void )
+{
+	// Calculate score and send out stats to everyone.
+	for ( int i = 1; i <= gpGlobals->maxClients; i++ )
+	{
+		CTFPlayer *pPlayer = ToTFPlayer( UTIL_PlayerByIndex( i ) );
+		if ( pPlayer && pPlayer->IsAlive() )
+		{
+			AccumulateAndResetPerLifeStats( pPlayer );
+			SendStatsToPlayer( pPlayer, STATMSG_UPDATE );
 		}
 	}
 }
