@@ -43,6 +43,7 @@
 #include "tf_hud_menu_spy_disguise.h"
 #include "tf_statsummary.h"
 #include "tf_hud_freezepanel.h"
+#include "cam_thirdperson.h"
 
 #if defined( _X360 )
 #include "tf_clientscoreboard.h"
@@ -105,6 +106,8 @@ void CTFModeManager::LevelInit( const char *newmap )
 	{
 		voice_steal.SetValue( 1 );
 	}
+
+	g_ThirdPersonManager.Init();
 }
 
 void CTFModeManager::LevelShutdown( void )
@@ -206,6 +209,74 @@ ClientModeTFNormal* GetClientModeTFNormal()
 	Assert( dynamic_cast< ClientModeTFNormal* >( GetClientModeNormal() ) );
 
 	return static_cast< ClientModeTFNormal* >( GetClientModeNormal() );
+}
+
+//-----------------------------------------------------------------------------
+// Purpose: Fixes some bugs from base class.
+//-----------------------------------------------------------------------------
+void ClientModeTFNormal::OverrideView( CViewSetup *pSetup )
+{
+	C_TFPlayer *pPlayer = C_TFPlayer::GetLocalTFPlayer();
+	if ( !pPlayer )
+		return;
+
+	// Let the player override the view.
+	pPlayer->OverrideView( pSetup );
+
+	if ( ::input->CAM_IsThirdPerson() )
+	{
+		int iObserverMode = pPlayer->GetObserverMode();
+		if ( iObserverMode == OBS_MODE_NONE || iObserverMode == OBS_MODE_IN_EYE )
+		{
+			QAngle camAngles;
+			if ( g_ThirdPersonManager.IsOverridingThirdPerson() == false )
+			{
+				VectorCopy( pSetup->angles, camAngles );
+			}
+			else
+			{
+				const Vector& cam_ofs = g_ThirdPersonManager.GetCameraOffsetAngles();
+				camAngles[PITCH] = cam_ofs[PITCH];
+				camAngles[YAW] = cam_ofs[YAW];
+				camAngles[ROLL] = 0;
+
+				// Override angles from third person camera
+				VectorCopy( camAngles, pSetup->angles );
+			}
+
+			Vector camForward, camRight, camUp, cam_ofs_distance;
+
+			// get the forward vector
+			AngleVectors( camAngles, &camForward, &camRight, &camUp );
+
+			if ( g_ThirdPersonManager.IsOverridingThirdPerson() == false )
+			{
+				cam_ofs_distance = g_ThirdPersonManager.GetFinalCameraOffset();
+			}
+			else
+			{
+				cam_ofs_distance = g_ThirdPersonManager.GetDesiredCameraOffset();
+			}
+
+			cam_ofs_distance *= g_ThirdPersonManager.GetDistanceFraction();
+
+			VectorMA( pSetup->origin, -cam_ofs_distance[0], camForward, pSetup->origin );
+			VectorMA( pSetup->origin, cam_ofs_distance[1], camRight, pSetup->origin );
+			VectorMA( pSetup->origin, cam_ofs_distance[2], camUp, pSetup->origin );
+		}
+	}
+	else if ( ::input->CAM_IsOrthographic() )
+	{
+		pSetup->m_bOrtho = true;
+		float w, h;
+		::input->CAM_OrthographicSize( w, h );
+		w *= 0.5f;
+		h *= 0.5f;
+		pSetup->m_OrthoLeft = -w;
+		pSetup->m_OrthoTop = -h;
+		pSetup->m_OrthoRight = w;
+		pSetup->m_OrthoBottom = h;
+	}
 }
 
 extern ConVar v_viewmodel_fov;
