@@ -166,27 +166,6 @@ CTFBaseProjectile *CTFBaseProjectile::Create( const char *pszClassname, const Ve
 
 	if ( pszDispatchEffect )
 	{
-		// we'd like to just send this projectile to a person in the shooter's PAS. However 
-		// the projectile won't be sent to a player outside of water if shot from inside water
-		// and vice-versa, so we do a trace here to figure out if the trace starts or stops in water.
-		// if it crosses contents, we'll just broadcast the projectile. Otherwise, just send to PVS
-		// of the trace's endpoint. 
-		trace_t tr;
-		UTIL_TraceLine( vecOrigin, vecOrigin + vecForward * MAX_COORD_RANGE, (CONTENTS_SOLID|CONTENTS_MOVEABLE|CONTENTS_WINDOW|CONTENTS_GRATE), pOwner, COLLISION_GROUP_NONE, &tr );
-		bool bBroadcast = ( UTIL_PointContents( vecOrigin ) != UTIL_PointContents( tr.endpos ) );
-		IRecipientFilter *pFilter;
-		if ( bBroadcast )
-		{
-			// The projectile is going to cross content types 
-			// (which will block PVS/PAS). Send to every client
-			pFilter = new CReliableBroadcastRecipientFilter();
-		}
-		else
-		{
-			// just the PVS of where the projectile will hit.
-			pFilter = new CPASFilter( tr.endpos );
-		}
-
 		CEffectData data;
 		data.m_vOrigin = vecOrigin;
 		data.m_vStart = vecVelocity;
