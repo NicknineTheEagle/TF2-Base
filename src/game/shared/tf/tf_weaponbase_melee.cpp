@@ -42,7 +42,7 @@ END_DATADESC()
 
 #ifndef CLIENT_DLL
 ConVar tf_meleeattackforcescale( "tf_meleeattackforcescale", "80.0", FCVAR_CHEAT | FCVAR_GAMEDLL | FCVAR_DEVELOPMENTONLY );
-#endif;
+#endif
 
 //=============================================================================
 //

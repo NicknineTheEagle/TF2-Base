@@ -86,15 +86,17 @@ CBasePlayer *BotPutInServer( bool bFrozen, int iTeam, int iClass, const char *ps
 	}
 	else if ( bot_randomnames.GetBool() )
 	{
-		switch( RandomInt(0,5) )
+		static const char *szBotNames[] =
 		{
-		case 0: Q_snprintf( botname, sizeof( botname ), "Bot", BotNumber ); break;
-		case 1: Q_snprintf( botname, sizeof( botname ), "This is a medium Bot", BotNumber ); break;
-		case 2: Q_snprintf( botname, sizeof( botname ), "This is a super long bot name that is too long for the game to allow", BotNumber ); break;
-		case 3: Q_snprintf( botname, sizeof( botname ), "Another bot", BotNumber ); break;
-		case 4: Q_snprintf( botname, sizeof( botname ), "Yet more Bot names, medium sized", BotNumber ); break;
-		default: Q_snprintf( botname, sizeof( botname ), "B", BotNumber ); break;
-		}
+			"Bot",
+			"This is a medium Bot",
+			"This is a super long bot name that is too long for the game to allow",
+			"Another bot",
+			"Yet more Bot names, medium sized",
+			"B",
+		};
+
+		Q_strncpy( botname, szBotNames[RandomInt( 0, ARRAYSIZE( szBotNames ) - 1)], sizeof( botname ) );
 	}
 	else
 	{

@@ -29,14 +29,14 @@ struct s_MapName
 
 // This array must match the define order in hl2orange.spa.h
 static s_MapName s_Scenarios[] = {
-								"ctf_2fort",	"2Fort",
-								"cp_dustbowl",	"Dustbowl",
-								"cp_granary",	"Granary",
-								"cp_well",		"Well",
-								"cp_gravelpit", "Gravel Pit",
-								"tc_hydro",		"Hydro",
-								"cloak",		"Cloak (CTF)",
-								"cp_cloak",		"Cloak (CP)",
+	{	"ctf_2fort",	"2Fort",		},
+	{	"cp_dustbowl",	"Dustbowl",		},
+	{	"cp_granary",	"Granary",		},
+	{	"cp_well",		"Well",			},
+	{	"cp_gravelpit", "Gravel Pit",	},
+	{	"tc_hydro",		"Hydro",		},
+	{	"cloak",		"Cloak (CTF)",	},
+	{	"cp_cloak",		"Cloak (CP)",	},
 };
 
 struct s_PresenceTranslation

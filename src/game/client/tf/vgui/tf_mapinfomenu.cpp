@@ -368,7 +368,7 @@ void CTFMapInfoMenu::LoadMapPage( const char *mapName )
 
 		if ( g_pFullFileSystem->FileExists( pszDefault ) )
 		{
-			Q_snprintf ( mapRES, sizeof( mapRES ), pszDefault );
+			Q_strncpy( mapRES, pszDefault, sizeof( mapRES ) );
 		}
 		else
 		{
@@ -522,13 +522,13 @@ struct s_MapInfo
 };
 
 static s_MapInfo s_Maps[] = {
-	"ctf_2fort",	"2Fort",		"#Gametype_CTF",
-	"cp_dustbowl",	"Dustbowl",		"#TF_AttackDefend",
-	"cp_granary",	"Granary",		"#Gametype_CP",
-	"cp_well",		"Well (CP)",	"#Gametype_CP",
-	"cp_gravelpit", "Gravel Pit",	"#TF_AttackDefend",
-	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",
-	"ctf_well",		"Well (CTF)",	"#Gametype_CTF",
+	{	"ctf_2fort",	"2Fort",		"#Gametype_CTF",		},
+	{	"cp_dustbowl",	"Dustbowl",		"#TF_AttackDefend",		},
+	{	"cp_granary",	"Granary",		"#Gametype_CP",			},
+	{	"cp_well",		"Well (CP)",	"#Gametype_CP",			},
+	{	"cp_gravelpit", "Gravel Pit",	"#TF_AttackDefend",		},
+	{	"tc_hydro",		"Hydro",		"#TF_TerritoryControl",	},
+	{	"ctf_well",		"Well (CTF)",	"#Gametype_CTF",		},
 };
 
 //-----------------------------------------------------------------------------
