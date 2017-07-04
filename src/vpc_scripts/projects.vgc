@@ -17,6 +17,7 @@ $Project "captioncompiler"
 $Project "client"
 {
 	"game\client\client_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\client\client_tf_mod.vpc"		[($WIN32||$POSIX) && $TF_MOD]
 }
 
 $Project "fgdlib"
@@ -42,6 +43,7 @@ $Project "height2normal"
 $Project "server"
 {
 	"game\server\server_hl2mp.vpc"		[($WIN32||$POSIX) && $HL2MP]
+	"game\server\server_tf_mod.vpc"		[($WIN32||$POSIX) && $TF_MOD]
 }
 
 $Project "mathlib"
