@@ -1651,11 +1651,10 @@ void CTFGameRules::ClientCommandKeyValues( edict_t *pEntity, KeyValues *pKeyValu
 
 	if ( FStrEq( pKeyValues->GetName(), "FreezeCamTaunt" ) )
 	{
-		int iCmdPlayerID = pPlayer->GetUserID();
 		int iAchieverIndex = pKeyValues->GetInt( "achiever" );
-
 		CTFPlayer *pAchiever = ToTFPlayer( UTIL_PlayerByIndex( iAchieverIndex ) );
-		if ( pAchiever && ( pAchiever->GetUserID() != iCmdPlayerID ) )
+
+		if ( pAchiever && pAchiever != pPlayer )
 		{
 			int iClass = pAchiever->GetPlayerClass()->GetClassIndex();
 

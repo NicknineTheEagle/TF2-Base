@@ -202,7 +202,7 @@ void CTFViewModel::StandardBlendingRules( CStudioHdr *hdr, Vector pos[], Quatern
 
 		Assert( iBarrelBone != -1 );
 
-		if ( iBarrelBone != -1 )
+		if ( iBarrelBone != -1 && ( hdr->boneFlags( iBarrelBone ) & boneMask ) )
 		{
 			RadianEuler a;
 			QuaternionAngles( q[iBarrelBone], a );
