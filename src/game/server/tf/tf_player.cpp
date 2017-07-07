@@ -1071,7 +1071,7 @@ void CTFPlayer::ManageRegularWeapons( TFPlayerClassData_t *pData )
 		if ( pData->m_aWeapons[iWeapon] != TF_WEAPON_NONE )
 		{
 			int iWeaponID = pData->m_aWeapons[iWeapon];
-			const char *pszWeaponName = WeaponIdToAlias( iWeaponID );
+			const char *pszWeaponName = WeaponIdToClassname( iWeaponID );
 
 			CTFWeaponBase *pWeapon = (CTFWeaponBase *)GetWeapon( iWeapon );
 

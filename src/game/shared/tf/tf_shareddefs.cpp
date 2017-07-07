@@ -316,6 +316,22 @@ const char *WeaponIdToAlias( int iWeapon )
 	return g_aWeaponNames[iWeapon];
 }
 
+//-----------------------------------------------------------------------------
+// Purpose:
+//-----------------------------------------------------------------------------
+const char *WeaponIdToClassname( int iWeapon )
+{
+	const char *pszAlias = WeaponIdToAlias( iWeapon );
+	if ( pszAlias == NULL )
+		return NULL;
+
+	static char szClassname[128];
+	V_strncpy( szClassname, pszAlias, sizeof( szClassname ) );
+	V_strlower( szClassname );
+
+	return szClassname;
+}
+
 #ifdef GAME_DLL
 
 //-----------------------------------------------------------------------------
