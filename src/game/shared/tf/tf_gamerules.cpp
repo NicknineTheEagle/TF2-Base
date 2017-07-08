@@ -2531,6 +2531,8 @@ void CTFGameRules::HandleScrambleTeams( void )
 			pTFPlayer->ForceChangeTeam( TF_TEAM_AUTOASSIGN );
 		}
 	}
+
+	ResetTeamsRoundWinTracking();
 }
 
 //-----------------------------------------------------------------------------
