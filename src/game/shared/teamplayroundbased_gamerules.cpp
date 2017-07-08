@@ -265,7 +265,12 @@ void cc_ScrambleTeams( const CCommand& args )
 }
 
 static ConCommand mp_scrambleteams( "mp_scrambleteams", cc_ScrambleTeams, "Scramble the teams and restart the game" );
+#ifdef TF_MOD
+// Disabled by default since there's no autoscramble in old TF2.
+ConVar mp_scrambleteams_auto( "mp_scrambleteams_auto", "0", FCVAR_NOTIFY, "Server will automatically scramble the teams if criteria met.  Only works on dedicated servers." );
+#else
 ConVar mp_scrambleteams_auto( "mp_scrambleteams_auto", "1", FCVAR_NOTIFY, "Server will automatically scramble the teams if criteria met.  Only works on dedicated servers." );
+#endif
 ConVar mp_scrambleteams_auto_windifference( "mp_scrambleteams_auto_windifference", "2", FCVAR_NOTIFY, "Number of round wins a team must lead by in order to trigger an auto scramble." );
 
 // Classnames of entities that are preserved across round restarts
