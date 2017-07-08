@@ -89,6 +89,8 @@ extern ConVar spec_freeze_time;
 extern ConVar spec_freeze_traveltime;
 extern ConVar sv_maxunlag;
 extern ConVar tf_damage_disablespread;
+extern ConVar tf_gravetalk;
+extern ConVar tf_spectalk;
 
 // -------------------------------------------------------------------------------- //
 // Player animation event. Sent to the client when a player fires, jumps, reloads, etc..
@@ -5590,14 +5592,33 @@ void CTFPlayer::ModifyOrAppendCriteria( AI_CriteriaSet& criteriaSet )
 //-----------------------------------------------------------------------------
 bool CTFPlayer::CanHearAndReadChatFrom( CBasePlayer *pPlayer )
 {
-	//Everyone can chat like normal when the round/game ends
-	if ( pPlayer->m_lifeState != LIFE_ALIVE && m_lifeState == LIFE_ALIVE )
+	// can always hear the console unless we're ignoring all chat
+	if ( !pPlayer )
+		return m_iIgnoreGlobalChat != CHAT_IGNORE_ALL;
+
+	// check if we're ignoring all chat
+	if ( m_iIgnoreGlobalChat == CHAT_IGNORE_ALL )
+		return false;
+
+	// check if we're ignoring all but teammates
+	if ( m_iIgnoreGlobalChat == CHAT_IGNORE_TEAM && g_pGameRules->PlayerRelationship( this, pPlayer ) != GR_TEAMMATE )
+		return false;
+
+	if ( !pPlayer->IsAlive() && IsAlive() )
 	{
+		// Everyone can chat like normal when the round/game ends
 		if ( TFGameRules()->State_Get() == GR_STATE_TEAM_WIN || TFGameRules()->State_Get() == GR_STATE_GAME_OVER )
 			return true;
+
+		// Separate rule for spectators.
+		if ( pPlayer->GetTeamNumber() < FIRST_GAME_TEAM )
+			return tf_spectalk.GetBool();
+
+		// Living players can't hear dead ones unless gravetalk is enabled.
+		return tf_gravetalk.GetBool();
 	}
 
-	return BaseClass::CanHearAndReadChatFrom( pPlayer);
+	return true;
 }
 
 //-----------------------------------------------------------------------------
