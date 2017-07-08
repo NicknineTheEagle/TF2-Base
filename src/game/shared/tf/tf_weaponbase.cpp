@@ -37,6 +37,7 @@
 extern CTFWeaponInfo *GetTFWeaponInfo( int iWeapon );
 #endif
 
+ConVar tf_weapon_criticals( "tf_weapon_criticals", "1", FCVAR_NOTIFY | FCVAR_REPLICATED, "Whether or not random crits are enabled." );
 extern ConVar tf_useparticletracers;
 
 //=============================================================================
@@ -495,6 +496,9 @@ void CTFWeaponBase::CalcIsAttackCritical( void)
 //-----------------------------------------------------------------------------
 bool CTFWeaponBase::CalcIsAttackCriticalHelper()
 {
+	if ( !tf_weapon_criticals.GetBool() )
+		return false;
+
 	CTFPlayer *pPlayer = ToTFPlayer( GetPlayerOwner() );
 	if ( !pPlayer )
 		return false;
