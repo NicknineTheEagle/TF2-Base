@@ -313,6 +313,7 @@ private:
 	int m_iPrevRoundState;	// bit string representing the state of the points at the start of the previous miniround
 	int m_iCurrentRoundState;
 	int m_iCurrentMiniRoundMask;
+	float m_flTimerMayExpireAt;
 
 #endif
 
