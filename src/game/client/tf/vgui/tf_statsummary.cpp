@@ -60,8 +60,6 @@ void DestroyStatsSummaryPanel()
 CTFStatsSummaryPanel::CTFStatsSummaryPanel() : vgui::EditablePanel( NULL, "TFStatsSummary", 
 	vgui::scheme()->LoadSchemeFromFile( "Resource/ClientScheme.res", "ClientScheme" ) )
 {
-	SetParent( enginevgui->GetPanel( PANEL_GAMEUIDLL ) );
-
 	m_bControlsLoaded = false;
 	m_bInteractive = false;
 	m_xStartLHBar = 0;
@@ -108,6 +106,7 @@ void CTFStatsSummaryPanel::ShowModal()
 	m_bInteractive = true;
 #endif
 
+	SetParent( enginevgui->GetPanel( PANEL_GAMEUIDLL ) );
 	UpdateDialog();
 	SetVisible( true );
 	MoveToFront();
@@ -149,6 +148,7 @@ void CTFStatsSummaryPanel::OnCommand( const char *command )
 		m_bInteractive = false;
 		UpdateDialog();
 		SetVisible( false );
+		SetParent( (VPANEL) NULL );
 		SetDefaultSelections();
 
 #ifdef _X360
