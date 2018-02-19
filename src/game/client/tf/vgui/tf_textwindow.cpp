@@ -193,10 +193,10 @@ void CTFTextWindow::ShowText( const char *text )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTFTextWindow::ShowURL( const char *URL )
+void CTFTextWindow::ShowURL( const char *URL, bool bAllowUserToDisable /*= true*/ )
 {
 	ShowTitleLabel( false )	;
-	BaseClass::ShowURL( URL );
+	BaseClass::ShowURL( URL, bAllowUserToDisable );
 }
 
 //-----------------------------------------------------------------------------
