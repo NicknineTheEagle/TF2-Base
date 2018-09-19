@@ -98,24 +98,6 @@ void FindHullIntersection( const Vector &vecSrc, trace_t &tr, const Vector &mins
 	}
 }
 
-#ifdef CLIENT_DLL
-void RecvProxy_Sequence( const CRecvProxyData *pData, void *pStruct, void *pOut );
-
-void RecvProxy_WeaponSequence( const CRecvProxyData *pData, void *pStruct, void *pOut )
-{
-	C_TFWeaponBase *pWeapon = (C_TFWeaponBase *)pStruct;
-
-	// Weapons carried by other players have different models on server and client
-	// so we should ignore sequence changes in such case.
-	CTFPlayer *pPlayer = pWeapon->GetTFPlayerOwner();
-
-	if ( !pPlayer || !pPlayer->ShouldDrawThisPlayer() )
-	{
-		RecvProxy_Sequence( pData, pStruct, pOut );
-	}
-}
-#endif
-
 //=============================================================================
 //
 // TFWeaponBase tables.
@@ -129,8 +111,6 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	RecvPropInt( RECVINFO( m_iReloadMode ) ),
 	RecvPropBool( RECVINFO( m_bResetParity ) ), 
 	RecvPropBool( RECVINFO( m_bReloadedThroughAnimEvent ) ),
-
-	RecvPropInt( RECVINFO( m_nSequence ), 0, RecvProxy_WeaponSequence ),
 // Server specific.
 #else
 	SendPropBool( SENDINFO( m_bLowered ) ),
@@ -138,13 +118,15 @@ BEGIN_NETWORK_TABLE( CTFWeaponBase, DT_TFWeaponBase )
 	SendPropInt( SENDINFO( m_iReloadMode ), 4, SPROP_UNSIGNED ),
 	SendPropBool( SENDINFO( m_bReloadedThroughAnimEvent ) ),
 
+	// World models have no animations so don't send these.
 	SendPropExclude( "DT_BaseAnimating", "m_nSequence" ),
-	SendPropInt( SENDINFO( m_nSequence ), ANIMATION_SEQUENCE_BITS, SPROP_UNSIGNED ),
+	SendPropExclude( "DT_AnimTimeMustBeFirst", "m_flAnimTime" ),
 #endif
 END_NETWORK_TABLE()
 
-BEGIN_PREDICTION_DATA( CTFWeaponBase ) 
+BEGIN_PREDICTION_DATA( CTFWeaponBase )
 #ifdef CLIENT_DLL
+	DEFINE_PRED_FIELD( m_nSequence, FIELD_INTEGER, FTYPEDESC_OVERRIDE | FTYPEDESC_PRIVATE ),
 	DEFINE_PRED_FIELD( m_bLowered, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_iReloadMode, FIELD_INTEGER, FTYPEDESC_INSENDTABLE ),
 	DEFINE_PRED_FIELD( m_bReloadedThroughAnimEvent, FIELD_BOOLEAN, FTYPEDESC_INSENDTABLE ),
@@ -1486,8 +1468,7 @@ void CTFWeaponBase::OnDataChanged( DataUpdateType_t type )
 // ----------------------------------------------------------------------------
 int CTFWeaponBase::CalcOverrideModelIndex( void )
 {
-	CTFPlayer *pPlayer = GetTFPlayerOwner();
-	if ( pPlayer && !pPlayer->ShouldDrawThisPlayer() )
+	if ( ShouldDrawUsingViewModel() )
 	{
 		return m_iViewModelIndex;
 	}
