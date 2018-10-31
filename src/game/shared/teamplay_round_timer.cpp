@@ -1,4 +1,4 @@
-//========= Copyright Valve Corporation, All rights reserved. ============//
+//========= Copyright © 1996-2006, Valve Corporation, All rights reserved. ============//
 //
 // Purpose: Team gamerules round timer 
 //
@@ -14,16 +14,9 @@
 #include "vgui_controls/AnimationController.h"
 #include "c_playerresource.h"
 #include "c_team_objectiveresource.h"
-#if defined( TF_CLIENT_DLL )
-#include "tf_gamerules.h"
-#include "c_tf_player.h"
-#endif // TF_CLIENT_DLL
 #else
 #include "team.h"
 #include "team_objectiveresource.h"
-#if defined( TF_DLL )
-#include "tf_player.h"
-#endif // TF_DLL
 #endif
 
 #define ROUND_TIMER_60SECS	"Announcer.RoundEnds60seconds"
@@ -43,14 +36,6 @@
 #define ROUND_SETUP_3SECS	"Announcer.RoundBegins3Seconds"
 #define ROUND_SETUP_2SECS	"Announcer.RoundBegins2Seconds"
 #define ROUND_SETUP_1SECS	"Announcer.RoundBegins1Seconds"
-
-#if defined( TF_CLIENT_DLL ) || defined ( TF_MOD_CLIENT )
-#define MERASMUS_SETUP_5SECS	"Merasmus.RoundBegins5Seconds"
-#define MERASMUS_SETUP_4SECS	"Merasmus.RoundBegins4Seconds"
-#define MERASMUS_SETUP_3SECS	"Merasmus.RoundBegins3Seconds"
-#define MERASMUS_SETUP_2SECS	"Merasmus.RoundBegins2Seconds"
-#define MERASMUS_SETUP_1SECS	"Merasmus.RoundBegins1Seconds"
-#endif
 
 #define ROUND_START_BELL	"Ambient.Siren"
 
@@ -82,10 +67,6 @@ enum
 
 extern bool IsInCommentaryMode();
 
-#if defined( GAME_DLL ) && ( defined( TF_DLL ) || defined( TF_MOD ) )
-ConVar tf_overtime_nag( "tf_overtime_nag", "0", FCVAR_NOTIFY, "Announcer overtime nag." );
-#endif
-
 #ifdef CLIENT_DLL
 
 // Use this proxy to flash the round timer whenever the timer is restarted
@@ -111,7 +92,6 @@ static void RecvProxy_TimerPaused( const CRecvProxyData *pData, void *pStruct, v
 #endif
 
 LINK_ENTITY_TO_CLASS( team_round_timer, CTeamRoundTimer );
-PRECACHE_REGISTER( team_round_timer );
 
 IMPLEMENT_NETWORKCLASS_ALIASED( TeamRoundTimer, DT_TeamRoundTimer )
 
@@ -130,10 +110,6 @@ BEGIN_NETWORK_TABLE_NOBASE( CTeamRoundTimer, DT_TeamRoundTimer )
 	RecvPropInt( RECVINFO( m_nSetupTimeLength ) ),
 	RecvPropInt( RECVINFO( m_nState ) ),
 	RecvPropBool( RECVINFO( m_bStartPaused ) ),
-	RecvPropBool( RECVINFO( m_bShowTimeRemaining ) ),
-	RecvPropBool( RECVINFO( m_bInCaptureWatchState ) ),
-	RecvPropBool( RECVINFO( m_bStopWatchTimer ) ),
-	RecvPropTime( RECVINFO( m_flTotalTime ) ),
 
 #else
 
@@ -149,10 +125,6 @@ BEGIN_NETWORK_TABLE_NOBASE( CTeamRoundTimer, DT_TeamRoundTimer )
 	SendPropInt( SENDINFO( m_nSetupTimeLength ) ),
 	SendPropInt( SENDINFO( m_nState ) ),
 	SendPropBool( SENDINFO( m_bStartPaused ) ),
-	SendPropBool( SENDINFO( m_bShowTimeRemaining ) ),
-	SendPropBool( SENDINFO( m_bStopWatchTimer ) ),
-	SendPropBool( SENDINFO( m_bInCaptureWatchState ) ),
-	SendPropTime( SENDINFO( m_flTotalTime ) ),
 
 #endif
 END_NETWORK_TABLE()
@@ -167,7 +139,6 @@ BEGIN_DATADESC(CTeamRoundTimer)
 	DEFINE_KEYFIELD( m_nSetupTimeLength,		FIELD_INTEGER,	"setup_length" ),
 	DEFINE_KEYFIELD( m_bResetTimeOnRoundStart,	FIELD_BOOLEAN,	"reset_time" ),
 	DEFINE_KEYFIELD( m_bStartPaused,			FIELD_BOOLEAN,	"start_paused" ),
-	DEFINE_KEYFIELD( m_bShowTimeRemaining,			FIELD_BOOLEAN,	"show_time_remaining" ),
 
 	DEFINE_FUNCTION( RoundTimerSetupThink ),
 	DEFINE_FUNCTION( RoundTimerThink ),
@@ -184,7 +155,6 @@ BEGIN_DATADESC(CTeamRoundTimer)
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetMaxTime",		InputSetMaxTime ),
 	DEFINE_INPUTFUNC( FIELD_INTEGER,	"AutoCountdown",	InputAutoCountdown ),
 	DEFINE_INPUTFUNC( FIELD_STRING,		"AddTeamTime",		InputAddTeamTime ),
-	DEFINE_INPUTFUNC( FIELD_INTEGER,	"SetSetupTime",		InputSetSetupTime ),
 
 	DEFINE_OUTPUT(	m_OnRoundStart,		"OnRoundStart" ),
 	DEFINE_OUTPUT(	m_OnFinished,		"OnFinished" ),
@@ -226,7 +196,6 @@ CTeamRoundTimer::CTeamRoundTimer( void )
 	m_bAutoCountdown = true;
 	m_nState.Set( RT_STATE_NORMAL );        // we'll assume no setup time for now
 	m_bStartPaused = true;
-	m_bShowTimeRemaining = true;
 
 	m_bFireFinished = true;
 	m_bFire5MinRemain = true;
@@ -242,18 +211,10 @@ CTeamRoundTimer::CTeamRoundTimer( void )
 	m_bFire2SecRemain = true;
 	m_bFire1SecRemain = true;
 
-	m_bStopWatchTimer = false;
-
-	m_flTotalTime = 0.0f;
-
-	m_nSetupTimeLength = 0;
-
 #ifndef CLIENT_DLL
 	m_bPauseDueToWin = false;
 	m_bResetTimeOnRoundStart = false;
 	m_nTimeToUseAfterSetupFinished = 0;
-	m_flNextOvertimeNag = 0;
-	m_flLastTime = 0.f;
 #endif
 }
 
@@ -270,7 +231,6 @@ CTeamRoundTimer::~CTeamRoundTimer( void )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::Precache( void )
 {
-#if defined( TF_DLL ) || defined( TF_CLIENT_DLL ) || defined( TF_MOD ) || defined( TF_MOD_CLIENT ) 
 	PrecacheScriptSound( ROUND_TIMER_60SECS );
 	PrecacheScriptSound( ROUND_TIMER_30SECS );
 	PrecacheScriptSound( ROUND_TIMER_10SECS );
@@ -291,15 +251,6 @@ void CTeamRoundTimer::Precache( void )
 	PrecacheScriptSound( ROUND_TIMER_TIME_ADDED_LOSER );
 	PrecacheScriptSound( ROUND_TIMER_TIME_ADDED_WINNER );
 	PrecacheScriptSound( ROUND_START_BELL );
-
-#ifdef TF_CLIENT_DLL
-	PrecacheScriptSound( MERASMUS_SETUP_5SECS );
-	PrecacheScriptSound( MERASMUS_SETUP_4SECS );
-	PrecacheScriptSound( MERASMUS_SETUP_3SECS );
-	PrecacheScriptSound( MERASMUS_SETUP_2SECS );
-	PrecacheScriptSound( MERASMUS_SETUP_1SECS );
-#endif // TF_CLIENT_DLL
-#endif // TF_DLL || TF_CLIENT_DLL
 }
 
 //-----------------------------------------------------------------------------
@@ -378,20 +329,13 @@ float CTeamRoundTimer::GetTimeRemaining( void )
 {
 	float flSecondsRemaining;
 
-	if ( IsStopWatchTimer() == true && m_bInCaptureWatchState == true )
+	if ( m_bTimerPaused )
 	{
-		flSecondsRemaining = m_flTotalTime;
+		flSecondsRemaining = m_flTimeRemaining;
 	}
 	else
 	{
-		if ( m_bTimerPaused )
-		{
-			flSecondsRemaining = m_flTimeRemaining;
-		}
-		else
-		{
-			flSecondsRemaining = m_flTimerEndTime - gpGlobals->curtime;
-		}
+		flSecondsRemaining = m_flTimerEndTime - gpGlobals->curtime;
 	}
 
 	if ( flSecondsRemaining < 0 )
@@ -405,28 +349,12 @@ float CTeamRoundTimer::GetTimeRemaining( void )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTeamRoundTimer::SetCaptureWatchState( bool bCaptureWatch )
-{
-	m_bInCaptureWatchState = bCaptureWatch;
-
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
 int CTeamRoundTimer::GetTimerMaxLength( void )
 {
-	if ( m_nState == RT_STATE_SETUP )
-	{
-		return m_nSetupTimeLength;
-	}
-	else
-	{
-		if ( m_nTimerMaxLength )
-			return m_nTimerMaxLength;
+	if ( m_nTimerMaxLength )
+		return m_nTimerMaxLength;
 
-		return m_nTimerLength;
-	}
+	return m_nTimerLength;
 }
 
 //-----------------------------------------------------------------------------
@@ -469,9 +397,6 @@ void CTeamRoundTimer::CalculateOutputMessages( void )
 void CTeamRoundTimer::ClientThink()
 {
 	if ( IsDisabled() || m_bTimerPaused || IsInCommentaryMode() )
-		return;
-
-	if ( IsStopWatchTimer() == true && IsWatchingTimeStamps() == true )
 		return;
 
 	float flTime = GetTimeRemaining();
@@ -591,16 +516,7 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_5SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-#ifdef TF_CLIENT_DLL
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-			{
-				pszRetVal = MERASMUS_SETUP_5SECS;
-			}
-			else
-#endif
-			{
-				pszRetVal = ROUND_SETUP_5SECS;
-			}
+			pszRetVal = ROUND_SETUP_5SECS;
 		}
 		else
 		{
@@ -610,16 +526,7 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_4SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-#ifdef TF_CLIENT_DLL
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-			{
-				pszRetVal = MERASMUS_SETUP_4SECS;
-			}
-			else
-#endif
-			{
-				pszRetVal = ROUND_SETUP_4SECS;
-			}
+			pszRetVal = ROUND_SETUP_4SECS;
 		}
 		else
 		{
@@ -629,16 +536,7 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_3SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-#ifdef TF_CLIENT_DLL
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-			{
-				pszRetVal = MERASMUS_SETUP_3SECS;
-			}
-			else
-#endif
-			{
-				pszRetVal = ROUND_SETUP_3SECS;
-			}
+			pszRetVal = ROUND_SETUP_3SECS;
 		}
 		else
 		{
@@ -648,16 +546,7 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_2SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-#ifdef TF_CLIENT_DLL
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-			{
-				pszRetVal = MERASMUS_SETUP_2SECS;
-			}
-			else
-#endif
-			{
-				pszRetVal = ROUND_SETUP_2SECS;
-			}
+			pszRetVal = ROUND_SETUP_2SECS;
 		}
 		else
 		{
@@ -667,16 +556,7 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 	case RT_WARNING_1SECS:
 		if ( m_nState == RT_STATE_SETUP )
 		{
-#ifdef TF_CLIENT_DLL
-			if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_DOOMSDAY ) )
-			{
-				pszRetVal = MERASMUS_SETUP_1SECS;
-			}
-			else
-#endif
-			{
-				pszRetVal = ROUND_SETUP_1SECS;
-			}
+			pszRetVal = ROUND_SETUP_1SECS;
 		}
 		else
 		{
@@ -698,85 +578,15 @@ const char *CTeamRoundTimer::GetTimeWarningSound( int nWarning )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::SendTimeWarning( int nWarning )
 {
-#if defined( TF_CLIENT_DLL )
-	// don't play any time warnings for Helltower
-	if ( TFGameRules() && TFGameRules()->IsHalloweenScenario( CTFGameRules::HALLOWEEN_SCENARIO_HIGHTOWER ) )
-		return;
-#endif
-
 	// don't play sounds if the level designer has turned them off or if it's during the WaitingForPlayers time
 	if ( !m_bTimerPaused && m_bAutoCountdown && !TeamplayRoundBasedRules()->IsInWaitingForPlayers() )
 	{
 		C_BasePlayer *pPlayer = C_BasePlayer::GetLocalPlayer();
 		if ( pPlayer )
 		{
-			if ( ObjectiveResource() )
+			if ( ObjectiveResource() && ObjectiveResource()->GetTimerToShowInHUD() == entindex() )
 			{
-				bool bShouldPlaySound = false;
-
-				if ( TeamplayRoundBasedRules()->IsInTournamentMode() == true && TeamplayRoundBasedRules()->IsInStopWatch() == true )
-				{
-					int iActiveTimer = ObjectiveResource()->GetTimerToShowInHUD();
-					int iStopWatchTimer = ObjectiveResource()->GetStopWatchTimer();
-
-					if ( IsStopWatchTimer() == true && IsWatchingTimeStamps() == false )
-					{
-						CTeamRoundTimer *pTimer = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( iActiveTimer ) );
-
-						if ( pTimer && pTimer->IsTimerPaused() == false && pTimer->GetTimeRemaining() > GetTimeRemaining() )
-						{
-							bShouldPlaySound = true;
-						}
-					}
-					else
-					{
-						CTeamRoundTimer *pStopWatch = dynamic_cast< CTeamRoundTimer* >( ClientEntityList().GetEnt( iStopWatchTimer ) );
-
-						if ( ObjectiveResource()->GetTimerToShowInHUD() == entindex()  )
-						{
-							if ( pStopWatch )
-							{
-								if ( pStopWatch->IsTimerPaused() == true )
-								{
-									bShouldPlaySound = true;
-								}
-
-								if ( pStopWatch->GetTimeRemaining() > GetTimeRemaining() && pStopWatch->IsWatchingTimeStamps() == false )
-								{
-									bShouldPlaySound = true;
-								}
-
-								if ( pStopWatch->IsWatchingTimeStamps() == true )
-								{
-									bShouldPlaySound = true;
-								}
-							}
-							else
-							{
-								bShouldPlaySound = true;
-							}
-						}
-					}
-				}
-				else 
-				{
-					if( ObjectiveResource()->GetTimerToShowInHUD() == entindex() )
-					{
-						bShouldPlaySound = true;
-					}
-
-					if ( TeamplayRoundBasedRules() && TeamplayRoundBasedRules()->IsInKothMode() )
-					{
-						bShouldPlaySound = true;
-					}
-				}
-
-#if defined( TF_CLIENT_DLL ) || defined( TF_MOD_CLIENT )
-				if ( bShouldPlaySound == true )
-				{
-					pPlayer->EmitSound( GetTimeWarningSound( nWarning ) );
-				}
-#endif // TF_CLIENT_DLL
+				pPlayer->EmitSound( GetTimeWarningSound( nWarning ) );
 			}
 		}
 	}
@@ -787,37 +597,21 @@ void CTeamRoundTimer::SendTimeWarning( int nWarning )
 //-----------------------------------------------------------------------------
 // Purpose: 
 //-----------------------------------------------------------------------------
-void CTeamRoundTimer::SetState( int nState, bool bFireOutput )
+void CTeamRoundTimer::SetState( int nState )
 {
 	m_nState = nState;
 
 	if ( nState == RT_STATE_SETUP )
 	{
-		if ( IsStopWatchTimer() == false )
-		{
-			TeamplayRoundBasedRules()->SetSetup( true );
-		}
-
+		TeamplayRoundBasedRules()->SetSetup( true );
 		SetTimerThink( RT_THINK_SETUP );
-
-		if ( bFireOutput )
-		{
-			m_OnSetupStart.FireOutput( this, this );
-		}
+		m_OnSetupStart.FireOutput( this, this );
 	}
 	else
 	{
-		if ( IsStopWatchTimer() == false )
-		{
-			TeamplayRoundBasedRules()->SetSetup( false );
-		}
-
+		TeamplayRoundBasedRules()->SetSetup( false );
 		SetTimerThink( RT_THINK_NORMAL );
-
-		if ( bFireOutput )
-		{
-			m_OnRoundStart.FireOutput( this, this );
-		}
+		m_OnRoundStart.FireOutput( this, this );
 	}
 }
 
@@ -843,16 +637,6 @@ void CTeamRoundTimer::SetTimerThink( int nType )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::RoundTimerSetupThink( void )
 {
-	float flLastTime = m_flLastTime;
-	m_flLastTime = GetTimeRemaining();
-
-	if ( TeamplayRoundBasedRules()->IsInPreMatch() == true && IsDisabled() == false )
-	{
-		inputdata_t data;
-		InputDisable( data );
-		m_OnSetupFinished.FireOutput( this, this );
-	}
-
 	if ( IsDisabled() || m_bTimerPaused )
 	{
 		SetContextThink( &CTeamRoundTimer::RoundTimerSetupThink, gpGlobals->curtime + 0.05, ROUND_TIMER_SETUP_THINK );
@@ -862,30 +646,8 @@ void CTeamRoundTimer::RoundTimerSetupThink( void )
 	float flTime = GetTimeRemaining();
 	TeamplayRoundBasedRules()->SetOvertime( false );
 
-	if ( m_flLastTime > 0.f )
-	{
-		int nLastSecond = floor( flLastTime );
-		int nThisSecond = floor( flTime );
-
-		if ( nLastSecond != nThisSecond )
-		{
-			IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_pre_round_time_left" );
-			if ( event )
-			{
-				event->SetInt( "time", nThisSecond );
-				gameeventmanager->FireEvent( event );
-			}
-		}
-	}
-
 	if ( flTime <= 0.0f && m_bFireFinished )
 	{
-		IGameEvent *event = gameeventmanager->CreateEvent( "teamplay_setup_finished" );
-		if ( event )
-		{
-			gameeventmanager->FireEvent( event );
-		}
-
 		m_OnSetupFinished.FireOutput( this, this );
 		m_bFireFinished = false;
 
@@ -947,12 +709,6 @@ void CTeamRoundTimer::RoundTimerSetupThink( void )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::RoundTimerThink( void )
 {
-	if ( TeamplayRoundBasedRules()->IsInPreMatch() == true && IsDisabled() == false )
-	{
-		inputdata_t data;
-		InputDisable( data );
-	}
-
 	if ( IsDisabled() || m_bTimerPaused || IsInCommentaryMode() || gpGlobals->eLoadType == MapLoad_Background )
 	{
 		SetContextThink( &CTeamRoundTimer::RoundTimerThink, gpGlobals->curtime + 0.05, ROUND_TIMER_THINK );
@@ -998,31 +754,11 @@ void CTeamRoundTimer::RoundTimerThink( void )
 			// is this the timer we're showing in the HUD?
 			if ( ShowInHud() )
 			{
-				if ( !TeamplayRoundBasedRules()->InOvertime() )
-				{
-					TeamplayRoundBasedRules()->SetOvertime( true );
-				}
-#if defined( TF_DLL ) || defined( TF_MOD )
-				else
-				{
-					if ( tf_overtime_nag.GetBool() && ( gpGlobals->curtime > m_flNextOvertimeNag ) )
-					{
-						m_flNextOvertimeNag = gpGlobals->curtime + 1.0f;
-
-						if ( RandomInt( 0, 1 ) > 0 )
-						{
-							IGameEvent *event = gameeventmanager->CreateEvent( "overtime_nag" );
-							if ( event )
-							{
-								gameeventmanager->FireEvent( event );
-							}
-						}
-					}
-				}
-#endif
+				TeamplayRoundBasedRules()->SetOvertime( true );
 			}
 
-			SetContextThink( &CTeamRoundTimer::RoundTimerThink, gpGlobals->curtime + 0.05, ROUND_TIMER_THINK );
+			// Think slower
+			SetContextThink( &CTeamRoundTimer::RoundTimerThink, gpGlobals->curtime + 1.0, ROUND_TIMER_THINK );
 			return;
 		}
 
@@ -1154,23 +890,6 @@ void CTeamRoundTimer::SetTimeRemaining( int iTimerSeconds )
 }
 
 //-----------------------------------------------------------------------------
-// Purpose: To set the initial timer duration
-//-----------------------------------------------------------------------------
-void CTeamRoundTimer::SetStopWatchTimeStamp( void )
-{
-	if ( IsDisabled() )
-		return;
-
-	if ( IsWatchingTimeStamps() == false )
-		return;
-
-	m_flTotalTime = m_flTotalTime + (gpGlobals->curtime - m_flTimerEndTime);
-	m_flTimerEndTime = gpGlobals->curtime;
-
-	CalculateOutputMessages();
-}
-
-//-----------------------------------------------------------------------------
 // Purpose: Timer is paused at round end, stops the countdown
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::PauseTimer( void )
@@ -1201,14 +920,7 @@ void CTeamRoundTimer::ResumeTimer( void )
 	{
 		m_bTimerPaused = false;
 
-		if ( IsStopWatchTimer() == true && m_bInCaptureWatchState == true )
-		{
-			m_flTimerEndTime = gpGlobals->curtime;
-		}
-		else
-		{
-			m_flTimerEndTime = gpGlobals->curtime + m_flTimeRemaining;			
-		}
+		m_flTimerEndTime = gpGlobals->curtime + m_flTimeRemaining;
 	}
 }
 
@@ -1221,11 +933,6 @@ void CTeamRoundTimer::AddTimerSeconds( int iSecondsToAdd, int iTeamResponsible /
 		return;
 
 	if ( TeamplayRoundBasedRules()->InStalemate() )
-		return;
-
-	// we only want to add time if we're round_running or team_win so the control points 
-	// don't add time when they try to set their default owner when the map is first loading
-	if ( TeamplayRoundBasedRules()->State_Get() != GR_STATE_RND_RUNNING && TeamplayRoundBasedRules()->State_Get() != GR_STATE_TEAM_WIN )
 		return;
 
 	if ( m_nTimerMaxLength > 0 )
@@ -1250,9 +957,9 @@ void CTeamRoundTimer::AddTimerSeconds( int iSecondsToAdd, int iTeamResponsible /
 	m_nTimerLength += iSecondsToAdd;
 	CalculateOutputMessages();
 
-	if ( ( ObjectiveResource() && ObjectiveResource()->GetTimerInHUD() == entindex() ) || ( TeamplayRoundBasedRules()->IsInKothMode() ) )
+	if ( ObjectiveResource() && ObjectiveResource()->GetTimerInHUD() == entindex() )
 	{
-		if ( !TeamplayRoundBasedRules()->InStalemate() && !TeamplayRoundBasedRules()->RoundHasBeenWon() && !TeamplayRoundBasedRules()->IsInKothMode() )
+		if ( !TeamplayRoundBasedRules()->InStalemate() && !TeamplayRoundBasedRules()->RoundHasBeenWon() )
 		{
 			if ( iTeamResponsible >= LAST_SHARED_TEAM+1 )
 			{
@@ -1262,7 +969,6 @@ void CTeamRoundTimer::AddTimerSeconds( int iSecondsToAdd, int iTeamResponsible /
 					{
 						CTeamRecipientFilter filter( iTeam, true );
 						EmitSound( filter, entindex(), ROUND_TIMER_TIME_ADDED_WINNER );
-						
 					}
 					else
 					{
@@ -1322,15 +1028,8 @@ void CTeamRoundTimer::InputResume( inputdata_t &input )
 //-----------------------------------------------------------------------------
 void CTeamRoundTimer::InputSetTime( inputdata_t &input )
 {
-	if ( IsStopWatchTimer() == true && IsWatchingTimeStamps() == true )
-	{
-		SetStopWatchTimeStamp();
-	}
-	else
-	{
-		int nSeconds = input.value.Int();
-		SetTimeRemaining( nSeconds );
-	}
+	int nSeconds = input.value.Int();
+	SetTimeRemaining( nSeconds );
 }
 
 //-----------------------------------------------------------------------------
@@ -1372,14 +1071,14 @@ void CTeamRoundTimer::InputAddTeamTime( inputdata_t &input )
 
 	// get the team
 	p = nexttoken( token, p, ' ' );
-	if ( token[0] )
+	if ( token )
 	{
 		nTeam = Q_atoi( token );
 	}
 
 	// get the time
 	p = nexttoken( token, p, ' ' );
-	if ( token[0] )
+	if ( token )
 	{
 		nSeconds = Q_atoi( token );
 	}
@@ -1409,11 +1108,6 @@ void CTeamRoundTimer::InputEnable( inputdata_t &input )
 	if ( m_bShowInHUD )
 	{
 		SetActiveTimer( this );
-	}
-
-	if ( IsStopWatchTimer() == true && IsWatchingTimeStamps() == true )
-	{
-		m_flTimerEndTime = gpGlobals->curtime;
 	}
 }
 
@@ -1445,7 +1139,6 @@ void CTeamRoundTimer::InputShowInHUD( inputdata_t &input )
 	else if ( nShow == 1 )
 	{
 		SetActiveTimer( this );
-		SetState( m_nState, false ); // set our current state again so the gamerules are updated with our setup state
 	}
 
 	m_bShowInHUD = ( nShow == 1 ); 
@@ -1458,26 +1151,6 @@ void CTeamRoundTimer::InputAutoCountdown( inputdata_t &input )
 { 
 	int nAuto = input.value.Int();
 	SetAutoCountdown( nAuto == 1 ); 
-}
-
-//-----------------------------------------------------------------------------
-// Purpose: 
-//-----------------------------------------------------------------------------
-void CTeamRoundTimer::InputSetSetupTime( inputdata_t &input )
-{ 
-	int nSetupTime = input.value.Int();
-	if ( nSetupTime >= 0 )
-	{
-		m_nSetupTimeLength = nSetupTime;
-	}
-
-	if ( !IsDisabled() )
-	{
-		if ( m_nState == RT_STATE_SETUP )
-		{
-			SetTimeRemaining( m_nSetupTimeLength );
-		}	
-	}
 }
 
 //-----------------------------------------------------------------------------

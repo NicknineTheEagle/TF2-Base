@@ -80,7 +80,7 @@ struct PlayerRoundScore_t
 
 #define MAX_TEAMGOAL_STRING		256
 
-class CTFGameRules : public CTeamplayRoundBasedRules
+class CTFGameRules : public CTeamplayRoundBasedRules, public CGameEventListener
 {
 public:
 	DECLARE_CLASS( CTFGameRules, CTeamplayRoundBasedRules );
