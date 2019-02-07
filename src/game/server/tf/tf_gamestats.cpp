@@ -817,6 +817,7 @@ void CTFGameStats::Event_MaxSentryKills( CTFPlayer *pAttacker, int iMaxKills )
 	if ( iCur != iMaxKills )
 	{
 		stats.statsCurrentRound.m_iStat[TFSTAT_MAXSENTRYKILLS] = iMaxKills;
+		stats.statsAccumulated.m_iStat[TFSTAT_MAXSENTRYKILLS] = iMaxKills;
 		stats.iStatsChangedBits |= ( 1 << ( TFSTAT_MAXSENTRYKILLS - TFSTAT_FIRST ) );
 	}
 }
