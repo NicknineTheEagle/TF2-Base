@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  push:
+    paths:
+      - .github/workflows/CI.yml
+      - src/**
+  pull_request:
+    paths:
+      - .github/workflows/CI.yml
+      - src/**
+
+jobs:
+  build-linux:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Init
+      run: |
+        wget -qO- http://media.steampowered.com/client/runtime/steam-runtime-sdk_latest.tar.xz \
+        | sudo tar --strip-components=1 --one-top-level="/valve/steam-runtime" -xvJf -
+        sudo /valve/steam-runtime/setup.sh --target="i386 amd64" --release --auto-upgrade
+        sudo cp /usr/bin/objcopy /valve/steam-runtime/bin
+        sudo chmod +x ./src/devtools/{bin/vpc,bin/vpc_linux,bin/linux/ccache,gendbg.sh}
+    - name: Install
+      working-directory: src
+      run: ./devtools/bin/vpc /tf_mod +game /mksln games
+    - name: Build
+      working-directory: src
+      run: make -j$(nproc) -f games.mak
+    - uses: actions/upload-artifact@v2
+      with:
+        name: tfport_linux
+        path: game/tf_mod/bin
