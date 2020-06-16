@@ -33,7 +33,7 @@ Note that the above archive is not a playable build. It does not contain binarie
 
 1. Go to the Tools section in your Steam Library and install Source SDK Base 2013 Multiplayer. 
 
-2. Download the asset package and extract its contents to <Steam>\steamapps\sourcemods.
+2. Download the asset package and extract its contents to \<Steam>\steamapps\sourcemods.
 
 3. Restart Steam. "Team Fortress 2 1.0.1.8 Port" should appear in your Steam Library.
 
@@ -55,7 +55,7 @@ NOTE: If you're on Linux or Mac, Steam client currently has a bug where it doesn
 
 3. Download the asset package and extract its contents to where you installed Source SDK Base 2013 Dedicated Server.
 
-4. If you're on Linux, go to <server_install_folder>/bin and make copies of the files as follows:
+4. If you're on Linux, go to \<server_install_folder>/bin and make copies of the files as follows:
 
    * soundemittersystem_srv.so -> soundemittersystem.so
 
