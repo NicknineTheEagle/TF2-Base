@@ -19,7 +19,7 @@ Note that the above archive is not a playable build. It does not contain binarie
 
 ### Client:
 
-1. Go to the Tools section in your Steam Library and install Source SDK Base 2013 Multiplayer. 
+1. Go to the Tools section in your Steam Library and install Source SDK Base 2013 Multiplayer.
 
 2. Download the asset package and extract its contents to \<Steam>\steamapps\sourcemods.
 
@@ -34,19 +34,29 @@ NOTE: If you're on Linux or Mac, Steam client currently has a bug where it doesn
 1. These instructions assume you know how to host a dedicated server for TF2 and/or other Source games. If you don't, refer to these articles:
 
    * https://developer.valvesoftware.com/wiki/SteamCMD
-   
-   * https://wiki.teamfortress.com/wiki/Windows_dedicated_server 
-   
-   * https://wiki.teamfortress.com/wiki/Linux_dedicated_server 
+
+   * https://wiki.teamfortress.com/wiki/Windows_dedicated_server
+
+   * https://wiki.teamfortress.com/wiki/Linux_dedicated_server
 
 2. Use SteamCMD to download app 244310 (Source SDK Base 2013 Dedicated Server).
 
 3. Download the asset package and extract its contents to where you installed Source SDK Base 2013 Dedicated Server.
 
-4. If you're on Linux, go to \<server_install_folder>/bin and make copies of the files as follows:
+4. If you're on Linux, Valve has messed up some of the engine binaries and you'll need to fix that. Go to \<server_install_folder>/bin and delete these files:
+
+   * libtier0.so
+
+   * libvstdlib.so
+
+   Then make copies of the files as follows:
+
+   * libtier0_srv.so -> libtier0.so
+
+   * libvstdlib_srv.so -> libvstdlib.so
 
    * soundemittersystem_srv.so -> soundemittersystem.so
 
    * scenefilecache_srv.so -> scenefilecache.so
-   
+
 5. Put your compiled binaries into "bin" directory.
