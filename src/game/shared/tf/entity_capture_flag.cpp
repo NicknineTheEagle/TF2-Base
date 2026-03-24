@@ -667,7 +667,7 @@ void CCaptureFlag::Capture( CTFPlayer *pPlayer, int nCapturePoint )
 
 		// Handle messages to the screen.
 		TFTeamMgr()->PlayerCenterPrint( pPlayer, "#TF_AD_YouSecuredPoint", szNumber );
-		TFTeamMgr()->PlayerTeamCenterPrint( pPlayer, "TF_AD_AttackersSecuredPoint", szNumber );
+		TFTeamMgr()->PlayerTeamCenterPrint( pPlayer, "#TF_AD_AttackersSecuredPoint", szNumber );
 		for ( int iTeam = TF_TEAM_RED; iTeam < TF_TEAM_COUNT; ++iTeam )
 		{
 			if ( iTeam != pPlayer->GetTeamNumber() )
